@@ -1,6 +1,3 @@
-// add styles
-import './style.css';
-// three.js
 import * as THREE from 'three';
 
 // create the scene
