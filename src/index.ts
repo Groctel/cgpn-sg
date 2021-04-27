@@ -33,8 +33,8 @@ light2.position.set(-100, 100, -100);
 scene.add(light2);
 
 const material = new THREE.MeshBasicMaterial({
-  color: 0xaaaaaa,
-  wireframe: true,
+	color: 0xaaaaaa,
+	wireframe: true,
 });
 
 // create a box and add it to the scene
@@ -52,15 +52,15 @@ camera.position.z = 5;
 camera.lookAt(scene.position);
 
 function animate(): void {
-  requestAnimationFrame(animate);
-  render();
+	requestAnimationFrame(animate);
+	render();
 }
 
 function render(): void {
-  const timer = 0.002 * Date.now();
-  box.position.y = 0.5 + 0.5 * Math.sin(timer);
-  box.rotation.x += 0.1;
-  renderer.render(scene, camera);
+	const timer = 0.002 * Date.now();
+	box.position.y = 0.5 + 0.5 * Math.sin(timer);
+	box.rotation.x += 0.1;
+	renderer.render(scene, camera);
 }
 
 animate();
