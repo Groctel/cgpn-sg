@@ -12,12 +12,12 @@
     "url": "git+https://github.com/pinqy520/three-typescript-starter.git"
   },
   "keywords": [],
-  "author": "Huang Qi",
+  "author": "Juan Mota Martínez, Atanasio José Rubio Gil",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/pinqy520/three-typescript-starter/issues"
+    "url": "https://github.com/Groctel/cgpn-sg/issues"
   },
-  "homepage": "https://github.com/pinqy520/three-typescript-starter#readme",
+  "homepage": "https://github.com/Groctel/cgpn-sg",
   "devDependencies": {
     "@types/dat-gui": "latest",
     "@types/jquery": "latest",
