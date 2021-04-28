@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {Jugador} from '../Modelos/Jugador'
 
 // create the scene
 const scene = new THREE.Scene();
@@ -39,8 +40,9 @@ const material = new THREE.MeshBasicMaterial({
 
 // create a box and add it to the scene
 const box = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), material);
+const jugador = new Jugador();
 
-scene.add(box);
+scene.add(jugador);
 
 box.position.x = 0.5;
 box.rotation.y = 0.5;
