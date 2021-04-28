@@ -19,8 +19,9 @@
   },
   "homepage": "https://github.com/pinqy520/three-typescript-starter#readme",
   "devDependencies": {
+    "@types/dat-gui": "latest",
+    "@types/jquery": "latest",
     "@types/three": "latest",
-    "@types/three-dat.gui": "latest",
     "@typescript-eslint/eslint-plugin": "latest",
     "@typescript-eslint/parser": "latest",
     "css-loader": "latest",
@@ -35,7 +36,8 @@
     "webpack-dev-server": "latest"
   },
   "dependencies": {
-    "three": "latest",
-    "dat-gui": "latest"
+    "dat-gui": "latest",
+    "jquery": "latest",
+    "three": "latest"
   }
 }
