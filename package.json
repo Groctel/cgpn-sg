@@ -35,7 +35,8 @@
     "webpack-dev-server": "latest"
   },
   "dependencies": {
-    "three": "latest",
-    "dat-gui": "latest"
+    "dat-gui": "latest",
+    "jquery": "^3.6.0",
+    "three": "latest"
   }
 }

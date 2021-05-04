@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-
+import * as TWEEN from '@tweenjs/tween.js';
 
 export class Jugador extends THREE.Object3D {
 	private geometria = new THREE.BoxGeometry(1,1,1);
@@ -11,6 +11,15 @@ export class Jugador extends THREE.Object3D {
 	private brazoDch: THREE.Mesh;
 	private piernaIzq: THREE.Mesh;
 	private piernaDch: THREE.Mesh;
+
+	private LegGroup1: THREE.Object3D;
+	private LegGroup2: THREE.Object3D;
+
+	private tweenBackLeftLeg;
+	private tweenForthLeftLeg;
+
+	private tweenBackRightLeg;
+	private tweenForthRightLeg;
 
 	constructor(){
 		super();
@@ -30,20 +39,58 @@ export class Jugador extends THREE.Object3D {
 		this.cuerpo.scale.z *=0.75;
 
 		//Creación de las piernas
+
+		//Pierna Izquierda
+		//Con su Animación
 		this.piernaIzq = new THREE.Mesh(this.geometria, this.material);
 		this.piernaIzq.scale.x *= 0.75;
 		this.piernaIzq.scale.y *= 3;
 		this.piernaIzq.scale.z *= 0.75;
 
-		this.piernaIzq.position.y += -3;
+		this.piernaIzq.position.y += -1.3;
 
+		this.LegGroup2 = new THREE.Object3D();
+		this.LegGroup2.add(this.piernaIzq);
+
+		this.tweenForthLeftLeg = new TWEEN.Tween(this.LegGroup2.rotation)
+			.to({x: this.LegGroup2.rotation.x + 45*(Math.PI/180)},1000)
+			.easing(TWEEN.Easing.Quadratic.Out)
+			.yoyo(true)
+			.repeat(Infinity);
+
+		this.tweenBackLeftLeg = new TWEEN.Tween(this.LegGroup2.rotation)
+			.to({x: this.LegGroup2.rotation.x - 45*(Math.PI/180)},1000)
+			.easing(TWEEN.Easing.Quadratic.Out)
+			.yoyo(true);
+
+		this.tweenBackLeftLeg.chain(this.tweenForthLeftLeg);
+		this.LegGroup2.position.y -= 1.7;
+
+		//Pierna Derecha
+		//Con su Animación
 		this.piernaDch = new THREE.Mesh(this.geometria, this.material);
 		this.piernaDch.scale.x *= 0.75;
 		this.piernaDch.scale.y *= 3;
 		this.piernaDch.scale.z *= 0.75;
 
-		this.piernaDch.position.y += -3;
+		this.piernaDch.position.y -= 1.3;
+		this.LegGroup1 = new THREE.Object3D();
+		this.LegGroup1.add(this.piernaDch);
 
+		this.tweenForthRightLeg = new TWEEN.Tween(this.LegGroup1.rotation)
+			.to({x: this.LegGroup1.rotation.x + 45*(Math.PI/180)},1000)
+			.easing(TWEEN.Easing.Quadratic.Out)
+			.yoyo(true);
+
+		this.tweenBackRightLeg = new TWEEN.Tween(this.LegGroup1.rotation)
+			.to({x: this.LegGroup1.rotation.x - 45*(Math.PI/180)},1000)
+			.easing(TWEEN.Easing.Quadratic.Out)
+			.yoyo(true)
+			.repeat(Infinity);
+
+		this.tweenForthRightLeg.chain(this.tweenBackRightLeg);
+
+		this.LegGroup1.position.y -= 1.7;
 		this.piernaDch.position.x += 0.5;
 		this.piernaIzq.position.x += -0.5;
 
@@ -64,12 +111,22 @@ export class Jugador extends THREE.Object3D {
 
 		this.add(this.cabeza);
 		this.add(this.cuerpo);
-		this.add(this.piernaIzq);
-		this.add(this.piernaDch);
+		this.add(this.LegGroup2);
+		this.add(this.LegGroup1);
 		this.add(this.brazoIzq);
 		this.add(this.brazoDch);
 
+	}
 
+	walkAnimation(): void{
+
+		this.tweenBackLeftLeg.start();
+		this.tweenForthRightLeg.start();
+
+	}
+
+	update():void{
+		TWEEN.update();
 	}
 
 
