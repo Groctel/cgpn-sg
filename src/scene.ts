@@ -3,6 +3,9 @@ import * as THREE from 'three';
 import { GUI } from 'dat-gui';
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls';
 
+import DirtBlock from './blocks/dirt';
+import GrassBlock from './blocks/dirt';
+
 const SCENE_DEFAULTS = {
 	AXES:            true,
 	LIGHT_INTENSITY: 0.5,
@@ -21,6 +24,8 @@ class GameScene extends THREE.Scene
 	camera: THREE.PerspectiveCamera;
 	spotlight: THREE.SpotLight;
 	camera_control: TrackballControls;
+	dirt_block: DirtBlock;
+	grass_block: DirtBlock;
 
 	constructor (canvas: string)
 	{
@@ -44,6 +49,9 @@ class GameScene extends THREE.Scene
 
 		this.axes = new THREE.AxesHelper (50);
 		this.add(this.axes);
+
+		this.grass_block = new GrassBlock();
+		this.add(this.grass_block);
 	}
 
 	constructCamera (): void
