@@ -1,19 +1,19 @@
 import * as THREE from 'three';
 import * as TWEEN from '@tweenjs/tween.js';
+import {ModelBase} from './ModelBase';
 
 
-export class JugadorPrimeraPersona extends THREE.Object3D {
-	private geometria = new THREE.BoxGeometry(1,1,1);
-	private material = new THREE.MeshBasicMaterial({color: 0xff0000});
+export class JugadorPrimeraPersona extends ModelBase {
 	private materialUp = new THREE.MeshNormalMaterial();
 
-	private brazoDch: THREE.Mesh;
 	private brazoAparte: THREE.Object3D;
+	private brazoDch: THREE.Object3D;
 	private cubo: THREE.Mesh;
+
+	private tweenUp
 
 	constructor(){
 		super();
-
 
 		//Creamos el brazo
 		this.brazoDch = new THREE.Mesh(this.geometria, this.material);
@@ -40,15 +40,95 @@ export class JugadorPrimeraPersona extends THREE.Object3D {
 		this.cubo.position.x += 0.5;
 
 
-		this.add(this.brazoAparte);
-		this.add(this.cubo);
-
+		this.character = new THREE.Object3D();
+		this.character.add(this.brazoAparte);
+		this.character.add(this.cubo);
+		this.add(this.character);
 
 		//Animaciones
+		this.tweenUp = new TWEEN.Tween(this.character.position)
+			.to({y:1.5},1000)
+			.easing(TWEEN.Easing.Quadratic.Out)
+			.yoyo(true)
+			.repeat(Infinity);
 	}
 
+	walkRightStop(): void{
+		if(this.walking){
+			this.tweenUp.stop();
+			this.walking = false;
+		}
 
+		this.walkingRight = false;
 
+	}
+
+	walkRightStart(): void{
+		if(!this.walking){
+			this.tweenUp.start();
+			this.walking = true;
+		}
+
+		this.walkingRight = true;
+
+	}
+
+	walkLeftStop(): void{
+		if(this.walking){
+			this.tweenUp.stop();
+			this.walking = false;
+		}
+
+		this.walkingLeft = false;
+	}
+
+	walkLeftStart(): void{
+		if(!this.walking){
+			this.tweenUp.start();
+			this.walking = true;
+		}
+
+		this.walkingLeft = true;
+
+	}
+
+	walkForwardStop(): void{
+		if(this.walking){
+			this.tweenUp.stop();
+			this.walking = false;
+		}
+
+		this.walkingForward = false;
+	}
+
+	walkForwardStart(): void{
+		if(!this.walking){
+			this.tweenUp.start();
+			this.walking = true;
+		}
+
+		this.walkingForward = true;
+
+	}
+
+	walkBackwardStop(): void{
+		if(this.walking){
+			this.tweenUp.stop();
+			this.walking = false;
+		}
+
+		this.walkingBackward = false;
+	}
+
+	walkBackwardStart(): void{
+		if(!this.walking){
+			this.tweenUp.start();
+			this.walking = true;
+		}
+
+		this.walkingBackward = true;
+
+	}
 
 }
 

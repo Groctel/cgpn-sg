@@ -6,6 +6,7 @@ import * as TWEEN from '@tweenjs/tween.js';
 
 import {JugadorPrimeraPersona} from '../Modelos/JugadorPrimeraPersona';
 import {Jugador} from '../Modelos/Jugador';
+import {ModelBase} from '../Modelos/ModelBase';
 
 const SCENE_DEFAULTS = {
 	AXES:            true,
@@ -26,7 +27,7 @@ class GameScene extends THREE.Scene
 	spotlight: THREE.SpotLight;
 	camera_control: TrackballControls;
 
-	jugador: Jugador;
+	player: JugadorPrimeraPersona;
 
 	constructor (canvas: string)
 	{
@@ -43,17 +44,16 @@ class GameScene extends THREE.Scene
 			}
 		};
 
+		this.player = new JugadorPrimeraPersona();
 		this.renderer = this.constructRenderer(canvas);
 		this.gui      = this.constructGUI();
 		this.constructLights();
 		this.constructCamera();
 
 		this.axes = new THREE.AxesHelper (50);
-		this.jugador = new Jugador();
-		this.jugador.walkAnimation();
 
 		this.add(this.axes);
-		this.add(this.jugador);
+		this.add(this.player);
 
 	}
 
@@ -66,10 +66,10 @@ class GameScene extends THREE.Scene
 			1000
 		);
 
-		const look = new THREE.Vector3(0, 0, 0);
+		this.camera.position.set(this.player.modelPosition().x, this.player.modelPosition().y+20, this.player.modelPosition().z-25);
+		this.camera.up.set(0,1,0);
+		this.camera.lookAt(new THREE.Vector3(this.player.modelPosition().x, this.player.modelPosition().y, this.player.modelPosition().z));
 
-		this.camera.position.set(20, 10, 10);
-		this.camera.lookAt(look);
 		this.add(this.camera);
 
 		this.camera_control = new TrackballControls(
@@ -80,7 +80,7 @@ class GameScene extends THREE.Scene
 		this.camera_control.rotateSpeed = 5;
 		this.camera_control.zoomSpeed   = 2;
 		this.camera_control.panSpeed    = 0.5;
-		this.camera_control.target      = look;
+//		this.camera_control.target      = new THREE.Vector3(this.player.modelPosition().x, this.player.modelPosition().y, this.player.modelPosition().z);
 	}
 
 	constructGUI (): GUI
@@ -136,17 +136,72 @@ class GameScene extends THREE.Scene
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
 	}
 
+	//Función para la detección de teclas pulsadas
+	onKeyDown(event): void
+	{
+		var key = event.wich || event.keyCode;
+		var keyC = String.fromCharCode(key);
+
+		if(keyC == "W"){
+			this.player.walkForwardStart();
+		}
+
+		if(keyC == "A"){
+			this.player.walkLeftStart();
+		}
+
+		if(keyC == "S"){
+			this.player.walkBackwardStart();
+		}
+
+		if(keyC == "D"){
+			this.player.walkRightStart();
+		}
+
+		this.update();
+	}
+
+	onKeyUp(event): void
+	{
+		var key = event.wich || event.keyCode;
+		var keyC = String.fromCharCode(key);
+
+		if(keyC== "W"){
+			this.player.walkForwardStop();
+		}
+
+		if(keyC == "A"){
+			this.player.walkLeftStop();
+		}
+
+		if(keyC == "S"){
+			this.player.walkBackwardStop();
+		}
+
+		if(keyC == "D"){
+			this.player.walkRightStop();
+		}
+		this.update();
+	}
+
+	updateCamera(): void{
+		var look = new THREE.Vector3(this.player.modelPosition().x, this.player.modelPosition().y, this.player.modelPosition().z);
+		this.camera.position.set(this.player.modelPosition().x+25, this.player.modelPosition().y, this.player.modelPosition().z);
+		this.camera.lookAt(look);
+	}
+
 	update (): void
 	{
+		this.player.update();
+		this.updateCamera();
 		this.renderer.render(this, this.camera);
+
 		this.spotlight.intensity = this.properties.light_intensity;
 		this.camera_control.update();
 
 		this.axes.visible = this.properties.axes;
 
-		this.jugador.update();
 		requestAnimationFrame(() => this.update());
-
 
 	}
 }
