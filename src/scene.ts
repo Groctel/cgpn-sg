@@ -3,8 +3,7 @@ import * as THREE from 'three';
 import { GUI } from 'dat-gui';
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls';
 
-import DirtBlock from './blocks/dirt';
-import GrassBlock from './blocks/dirt';
+import Chunk from './chunk';
 
 const SCENE_DEFAULTS = {
 	AXES:            true,
@@ -24,8 +23,8 @@ class GameScene extends THREE.Scene
 	camera: THREE.PerspectiveCamera;
 	spotlight: THREE.SpotLight;
 	camera_control: TrackballControls;
-	dirt_block: DirtBlock;
-	grass_block: DirtBlock;
+	world: Array<Array<Chunk>>;
+	world_size = 5;
 
 	constructor (canvas: string)
 	{
@@ -50,8 +49,21 @@ class GameScene extends THREE.Scene
 		this.axes = new THREE.AxesHelper (50);
 		this.add(this.axes);
 
-		this.grass_block = new GrassBlock();
-		this.add(this.grass_block);
+		this.world = new Array<Array<Chunk>>(this.world_size);
+
+		for (let x = 0; x < this.world_size; x++)
+		{
+			this.world[x] = new Array<Chunk>(this.world_size);
+
+			for (let z = 0; z < this.world_size; z++)
+			{
+				this.world[x][z] = new Chunk();
+				this.add(this.world[x][z].generateTerrain()
+					.translateX(x*Chunk.base)
+					.translateZ(z*Chunk.base)
+				);
+			}
+		}
 	}
 
 	constructCamera (): void
