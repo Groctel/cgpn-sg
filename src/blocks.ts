@@ -6,13 +6,13 @@ const grass_side_row = 0; const grass_side_col = 0;
 const grass_top_row  = 0; const grass_top_col  = 1;
 const stone_row      = 1; const stone_col      = 0;
 
-interface BlockAttrs
+class BlockAttrs
 {
 	breakable: boolean;
 	empty:     boolean;
 }
 
-export interface Block
+export class Block
 {
 	attrs:      BlockAttrs;
 	uv_bottom?: number[];
@@ -20,21 +20,18 @@ export interface Block
 	uv_top?:    number[];
 }
 
-interface BlockList
+export class Blocks
 {
-	[key: string]: Block;
-}
-
-export const Blocks: BlockList = {
-	air:
+	public static readonly air: Block =
 	{
 		attrs:
 		{
 			breakable: false,
 			empty: true,
 		},
-	},
-	bedrock:
+	}
+
+	public static readonly bedrock: Block =
 	{
 		attrs:
 		{
@@ -59,8 +56,8 @@ export const Blocks: BlockList = {
 			bedrock_row     / Textures.rows, bedrock_col     / Textures.cols,
 			(bedrock_row+1) / Textures.rows, bedrock_col     / Textures.cols,
 		],
-	},
-	dirt:
+	}
+	public static readonly dirt: Block =
 	{
 		attrs:
 		{
@@ -85,8 +82,9 @@ export const Blocks: BlockList = {
 			dirt_row     / Textures.rows, dirt_col     / Textures.cols,
 			(dirt_row+1) / Textures.rows, dirt_col     / Textures.cols,
 		],
-	},
-	grass:
+	};
+
+	public static readonly grass: Block =
 	{
 		attrs:
 		{
@@ -111,8 +109,9 @@ export const Blocks: BlockList = {
 			grass_top_row     / Textures.rows, grass_top_col     / Textures.cols,
 			(grass_top_row+1) / Textures.rows, grass_top_col     / Textures.cols,
 		],
-	},
-	stone:
+	};
+
+	public static readonly stone: Block =
 	{
 		attrs:
 		{
@@ -137,5 +136,5 @@ export const Blocks: BlockList = {
 			stone_row     / Textures.rows, stone_col     / Textures.cols,
 			(stone_row+1) / Textures.rows, stone_col     / Textures.cols,
 		],
-	},
-};
+	};
+}

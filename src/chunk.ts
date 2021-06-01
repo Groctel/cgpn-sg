@@ -3,12 +3,13 @@ import Noise from './noise';
 
 export default class Chunk
 {
-	private structure: Array<Array<Array<Block>>>;
-	public static readonly base = 16;
-	public static readonly build_height = 32;
 	private static noise = new Noise();
+	private structure: Block[][][];
 	private pos_x: number;
 	private pos_z: number;
+
+	public static readonly base   = 16;
+	public static readonly height = 32;
 
 	constructor (pos_x: number, pos_z: number, world_size: number)
 	{
@@ -22,7 +23,7 @@ export default class Chunk
 
 			for (let z = 0; z < Chunk.base; z++)
 			{
-				this.structure[x][z] = new Array<Block>(Chunk.build_height);
+				this.structure[x][z] = new Array<Block>(Chunk.height);
 
 				const perlin = Chunk.noise.perlin2(
 					(this.pos_x * Chunk.base + x) / (world_size * Chunk.base / 5) + 0.1,
@@ -46,7 +47,7 @@ export default class Chunk
 
 				this.structure[x][z][y++] = Blocks.grass;
 
-				while (y < Chunk.build_height)
+				while (y < Chunk.height)
 					this.structure[x][z][y++] = Blocks.air;
 			}
 		}

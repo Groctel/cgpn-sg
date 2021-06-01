@@ -59,11 +59,28 @@ export default class ChunkBuilder
 	{
 		let empty = true;
 
-		if (
-			x >= 0 && x < Chunk.base &&
-			z >= 0 && z < Chunk.base &&
-			y >= 0 && y < Chunk.build_height
-		) {
+		if (x < 0)
+		{
+			empty = this.ady_chunks[nx] === null ||
+				this.ady_chunks[nx][Chunk.base-1][z][y].attrs.empty;
+		}
+		else if (x >= Chunk.base)
+		{
+			empty = this.ady_chunks[px] === null ||
+				this.ady_chunks[px][0][z][y].attrs.empty;
+		}
+		else if (z < 0)
+		{
+			empty = this.ady_chunks[nz] === null ||
+				this.ady_chunks[nz][x][Chunk.base-1][y].attrs.empty;
+		}
+		else if (z >= Chunk.base)
+		{
+			empty = this.ady_chunks[pz] === null ||
+				this.ady_chunks[pz][x][0][y].attrs.empty;
+		}
+		else if (y >= 0 && y < Chunk.height)
+		{
 			empty = this.chunk[x][z][y].attrs.empty;
 		}
 
@@ -116,7 +133,7 @@ export default class ChunkBuilder
 
 		for (let x = 0; x < Chunk.base; x++)
 			for (let z = 0; z < Chunk.base; z++)
-				for (let y = 0; y < Chunk.build_height; y++)
+				for (let y = 0; y < Chunk.height; y++)
 					if (!this.chunk[x][z][y].attrs.empty)
 						this.generateBlockFaces(x, z, y);
 

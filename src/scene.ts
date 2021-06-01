@@ -2,6 +2,8 @@ import $ from 'jquery';
 import * as THREE from 'three';
 import { GUI } from 'dat-gui';
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
+import { SSAOPass } from 'three/examples/jsm/postprocessing/SSAOPass';
 
 import World from './world';
 
@@ -24,6 +26,8 @@ class GameScene extends THREE.Scene
 	spotlight: THREE.SpotLight;
 	camera_control: TrackballControls;
 	world: World;
+	composer: EffectComposer;
+	ssao_pass: SSAOPass;
 
 	constructor (canvas: string)
 	{
@@ -48,7 +52,18 @@ class GameScene extends THREE.Scene
 		this.axes = new THREE.AxesHelper (50);
 		this.add(this.axes);
 
+		const light = new THREE.AmbientLight( 0x404040 ); // soft white light
+		this.add(light);
+
 		this.world = new World(this);
+		this.composer = new EffectComposer(this.renderer);
+		this.ssao_pass = new SSAOPass(this, this.camera, window.innerWidth, window.innerHeight);
+
+		this.ssao_pass.kernelRadius = 5;
+		this.ssao_pass.minDistance  = 0.001;
+		this.ssao_pass.maxDistance  = 0.1;
+
+		this.composer.addPass(this.ssao_pass);
 	}
 
 	constructCamera (): void
@@ -132,7 +147,7 @@ class GameScene extends THREE.Scene
 
 	update (): void
 	{
-		this.renderer.render(this, this.camera);
+		this.composer.render();
 		this.spotlight.intensity = this.properties.light_intensity;
 		this.camera_control.update();
 

@@ -44,8 +44,8 @@ export default class World
 		);
 
 		World.scene.add(World.builders[x][z].chunkMesh()
-			.translateX(x*Chunk.base)
-			.translateZ(z*Chunk.base)
+			.translateX(x*Chunk.base - (Chunk.base * World.size) / 2)
+			.translateZ(z*Chunk.base - (Chunk.base * World.size) / 2)
 		);
 	}
 
