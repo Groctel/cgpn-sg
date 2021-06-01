@@ -5,10 +5,10 @@ export default class Textures
 	private static readonly loader = new THREE.TextureLoader();
 
 	public static readonly rows = 3;
-	public static readonly cols = 2;
+	public static readonly cols = 3;
 
 	public static readonly atlas    = Textures.loader.load("/tex/atlas.png");
-	public static readonly material = new THREE.MeshBasicMaterial({map: Textures.atlas});
+	public static readonly material = new THREE.MeshBasicMaterial({map: Textures.atlas, transparent: true});
 }
 
 Textures.atlas.magFilter = THREE.NearestFilter;

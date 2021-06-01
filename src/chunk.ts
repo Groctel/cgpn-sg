@@ -53,10 +53,12 @@ export default class Chunk
 			for (let z = 0; z < Chunk.base; z++)
 			{
 				this.structure[x][z] = new Array<Block>(Chunk.build_height);
-				const bedrock_height = Math.ceil(Math.abs(Math.random() * 3));
-				const stone_height   = Math.ceil(Math.abs(Math.random() * 6) + 8);
-				// const terrain_height = Math.ceil((Chunk.noise.perlin2(x, z) + 1) * Chunk.noise_height);
-				const terrain_height = 24;
+
+				const perlin  = Chunk.noise.perlin2(x / Chunk.base + 0.1, z / Chunk.base + 0.1);
+
+				const bedrock_height = Math.ceil(Math.random() * 3);
+				const stone_height   = Math.ceil(Math.abs(perlin * 10) + 5);
+				const terrain_height = Math.ceil(Math.abs(perlin * 8) + 10);
 
 				let y = 0;
 

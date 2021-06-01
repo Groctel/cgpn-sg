@@ -24,7 +24,7 @@ class GameScene extends THREE.Scene
 	spotlight: THREE.SpotLight;
 	camera_control: TrackballControls;
 	world: Array<Array<Chunk>>;
-	world_size = 5;
+	world_size = 1;
 
 	constructor (canvas: string)
 	{
