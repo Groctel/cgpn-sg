@@ -4,8 +4,8 @@ export default class Textures
 {
 	private static readonly loader = new THREE.TextureLoader();
 
-	public static readonly tex_hor = 2;
-	public static readonly tex_ver = 2;
+	public static readonly rows = 3;
+	public static readonly cols = 2;
 
 	public static readonly atlas    = Textures.loader.load("/tex/atlas.png");
 	public static readonly material = new THREE.MeshBasicMaterial({map: Textures.atlas});

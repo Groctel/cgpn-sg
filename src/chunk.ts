@@ -1,5 +1,4 @@
-// import SimplexNoise from 'simplex-noise';
-// import Noise from 'noisejs';
+import Noise from './noise';
 import * as THREE from 'three';
 import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils';
 
@@ -41,6 +40,7 @@ export default class Chunk
 	public static readonly noise_height = 16;
 	private terrain = Array<THREE.BufferGeometry>();
 	private uv = Array<Array<number>>();
+	private static noise = new Noise();
 
 	constructor ()
 	{
@@ -53,19 +53,26 @@ export default class Chunk
 			for (let z = 0; z < Chunk.base; z++)
 			{
 				this.structure[x][z] = new Array<Block>(Chunk.build_height);
-				// const terrain_height = Math.floor((new Noise().perlin2(x, z) + 1) * Chunk.noise_height);
-				const terrain_height = 10;
+				const bedrock_height = Math.ceil(Math.abs(Math.random() * 3));
+				const stone_height   = Math.ceil(Math.abs(Math.random() * 6) + 8);
+				// const terrain_height = Math.ceil((Chunk.noise.perlin2(x, z) + 1) * Chunk.noise_height);
+				const terrain_height = 24;
 
-				for (let y = 0; y < terrain_height; y++)
-				{
-					if (y != terrain_height -1)
-						this.structure[x][z][y] = Blocks.dirt;
-					else
-						this.structure[x][z][y] = Blocks.grass;
-				}
+				let y = 0;
 
-				for (let y = terrain_height; y < Chunk.build_height; y++)
-					this.structure[x][z][y] = Blocks.air;
+				while (y < bedrock_height)
+					this.structure[x][z][y++] = Blocks.bedrock;
+
+				while (y < stone_height)
+					this.structure[x][z][y++] = Blocks.stone;
+
+				while (y < terrain_height -1)
+					this.structure[x][z][y++] = Blocks.dirt;
+
+				this.structure[x][z][y++] = Blocks.grass;
+
+				while (y < Chunk.build_height)
+					this.structure[x][z][y++] = Blocks.air;
 			}
 		}
 
