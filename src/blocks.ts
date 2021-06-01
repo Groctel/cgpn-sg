@@ -1,6 +1,4 @@
-import * as THREE from 'three';
-
-const loader = new THREE.TextureLoader();
+import Textures from './textures';
 
 interface BlockAttrs
 {
@@ -10,10 +8,10 @@ interface BlockAttrs
 
 export interface Block
 {
-	attrs:       BlockAttrs;
-	mat_bottom?: THREE.MeshBasicMaterial;
-	mat_side?:   THREE.MeshBasicMaterial;
-	mat_top?:    THREE.MeshBasicMaterial;
+	attrs:      BlockAttrs;
+	uv_bottom?: number[];
+	uv_side?:   number[];
+	uv_top?:    number[];
 }
 
 interface BlockList
@@ -30,6 +28,32 @@ export const Blocks: BlockList = {
 			empty: true,
 		},
 	},
+	dirt:
+	{
+		attrs:
+		{
+			breakable: true,
+			empty: false,
+		},
+		uv_bottom: [
+			0.5, 0.5,
+			1.0, 0.5,
+			0.5, 1.0,
+			1.0, 1.0,
+		],
+		uv_side: [
+			0.5, 0.5,
+			1.0, 0.5,
+			0.5, 1.0,
+			1.0, 1.0,
+		],
+		uv_top: [
+			0.5, 0.5,
+			1.0, 0.5,
+			0.5, 1.0,
+			1.0, 1.0,
+		],
+	},
 	grass:
 	{
 		attrs:
@@ -37,8 +61,23 @@ export const Blocks: BlockList = {
 			breakable: true,
 			empty: false,
 		},
-		mat_bottom: new THREE.MeshBasicMaterial({map: loader.load("/tex/dirt.png")}),
-		mat_side: new THREE.MeshBasicMaterial({map: loader.load("/tex/grass-side.png")}),
-		mat_top: new THREE.MeshBasicMaterial({map: loader.load("/tex/grass-top.png")}),
+		uv_bottom: [
+			0.5, 0.5,
+			1.0, 0.5,
+			0.5, 1.0,
+			1.0, 1.0,
+		],
+		uv_side: [
+			0.0, 0.5,
+			0.5, 0.5,
+			0.0, 0.0,
+			0.5, 0.0,
+		],
+		uv_top: [
+			0.0, 0.5,
+			0.5, 0.5,
+			0.0, 1.0,
+			0.5, 1.0,
+		],
 	},
 };

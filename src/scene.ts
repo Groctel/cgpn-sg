@@ -1,4 +1,4 @@
-import * as $ from 'jquery';
+import $ from 'jquery';
 import * as THREE from 'three';
 import { GUI } from 'dat-gui';
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls';

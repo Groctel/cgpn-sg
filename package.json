@@ -36,8 +36,11 @@
     "webpack-dev-server": "latest"
   },
   "dependencies": {
+    "@types/noisejs": "^0.0.28",
     "dat-gui": "latest",
     "jquery": "latest",
+    "noisejs": "^2.1.0",
+    "simplex-noise": "^2.4.0",
     "three": "latest"
   }
 }
