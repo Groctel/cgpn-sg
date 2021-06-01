@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { GUI } from 'dat-gui';
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls';
 
-import Chunk from './chunk';
+import World from './world';
 
 const SCENE_DEFAULTS = {
 	AXES:            true,
@@ -23,8 +23,7 @@ class GameScene extends THREE.Scene
 	camera: THREE.PerspectiveCamera;
 	spotlight: THREE.SpotLight;
 	camera_control: TrackballControls;
-	world: Array<Array<Chunk>>;
-	world_size = 1;
+	world: World;
 
 	constructor (canvas: string)
 	{
@@ -49,21 +48,7 @@ class GameScene extends THREE.Scene
 		this.axes = new THREE.AxesHelper (50);
 		this.add(this.axes);
 
-		this.world = new Array<Array<Chunk>>(this.world_size);
-
-		for (let x = 0; x < this.world_size; x++)
-		{
-			this.world[x] = new Array<Chunk>(this.world_size);
-
-			for (let z = 0; z < this.world_size; z++)
-			{
-				this.world[x][z] = new Chunk();
-				this.add(this.world[x][z].generateTerrain()
-					.translateX(x*Chunk.base)
-					.translateZ(z*Chunk.base)
-				);
-			}
-		}
+		this.world = new World(this);
 	}
 
 	constructCamera (): void
