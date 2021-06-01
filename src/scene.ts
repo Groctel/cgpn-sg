@@ -1,11 +1,11 @@
 import * as $ from 'jquery';
 import * as THREE from 'three';
 import { GUI } from 'dat-gui';
-import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls';
 import * as TWEEN from '@tweenjs/tween.js';
 
+import {PointerLockControls} from 'three/examples/jsm/controls/PointerLockControls.js';
 import {JugadorPrimeraPersona} from '../Modelos/JugadorPrimeraPersona';
-import {Jugador} from '../Modelos/Jugador';
+import {DropItem} from '../Modelos/DropItem';
 import {ModelBase} from '../Modelos/ModelBase';
 
 const SCENE_DEFAULTS = {
@@ -25,9 +25,10 @@ class GameScene extends THREE.Scene
 	renderer: THREE.WebGLRenderer;
 	camera: THREE.PerspectiveCamera;
 	spotlight: THREE.SpotLight;
-	camera_control: TrackballControls;
 
 	player: JugadorPrimeraPersona;
+	drop: DropItem;
+	controls;
 
 	constructor (canvas: string)
 	{
@@ -45,17 +46,28 @@ class GameScene extends THREE.Scene
 		};
 
 		this.player = new JugadorPrimeraPersona();
+		this.drop = new DropItem(new THREE.MeshBasicMaterial({color: 0xff0000}));
+
 		this.renderer = this.constructRenderer(canvas);
 		this.gui      = this.constructGUI();
 		this.constructLights();
 		this.constructCamera();
 
+
 		this.axes = new THREE.AxesHelper (50);
 
 		this.add(this.axes);
+		this.add(this.drop);
+		this.add(new THREE.GridHelper(100,100));
+
+		this.drop.position.x += 4;
+		this.drop.position.y += 1;
+
 		this.add(this.player);
 
+		this.controls = new PointerLockControls(this.camera, this.renderer.domElement);
 	}
+
 
 	constructCamera (): void
 	{
@@ -66,20 +78,12 @@ class GameScene extends THREE.Scene
 			1000
 		);
 
-		this.camera.position.set(this.player.modelPosition().x, this.player.modelPosition().y+20, this.player.modelPosition().z-25);
-		this.camera.up.set(0,1,0);
-		this.camera.lookAt(new THREE.Vector3(this.player.modelPosition().x, this.player.modelPosition().y, this.player.modelPosition().z));
+		this.camera.position.set(0, 4.5, 0);
+		//this.camera.lookAt(new THREE.Vector3(this.player.modelPosition().x, this.player.modelPosition().y, this.player.modelPosition().z));
 
 		this.add(this.camera);
 
-		this.camera_control = new TrackballControls(
-			this.camera,
-			this.renderer.domElement
-		);
-
-		this.camera_control.rotateSpeed = 5;
-		this.camera_control.zoomSpeed   = 2;
-		this.camera_control.panSpeed    = 0.5;
+		this.camera.lookAt(0,4.5,0)
 //		this.camera_control.target      = new THREE.Vector3(this.player.modelPosition().x, this.player.modelPosition().y, this.player.modelPosition().z);
 	}
 
@@ -143,66 +147,65 @@ class GameScene extends THREE.Scene
 		var keyC = String.fromCharCode(key);
 
 		if(keyC == "W"){
-			this.player.walkForwardStart();
+	//		this.player.walkForwardStart();
+			//this.camera.position.set(this.camera.position.x, this.camera.pddosition.y, this.camera.position.z+0.1);
+			this.controls.moveForward(1)
 		}
 
 		if(keyC == "A"){
-			this.player.walkLeftStart();
+	//		this.player.walkLeftStart();
+			//this.camera.position.set(this.camera.position.x+0.1, this.camera.position.y, this.camera.position.z);
+			this.controls.moveRight(-1)
 		}
 
 		if(keyC == "S"){
-			this.player.walkBackwardStart();
+	//		this.player.walkBackwardStart();
+			//this.camera.position.set(this.camera.position.x, this.camera.position.y, this.camera.position.z-0.1);
+			this.controls.moveForward(-1)
 		}
 
 		if(keyC == "D"){
-			this.player.walkRightStart();
+	//		this.player.walkRightStart();
+			//this.camera.position.set(this.camera.position.x-0.1, this.camera.position.y, this.camera.position.z);
+			this.controls.moveRight(1)
 		}
+
+		if(keyC == "Q"){
+			this.controls.lock();
+		}
+
 
 		this.update();
 	}
 
-	onKeyUp(event): void
-	{
-		var key = event.wich || event.keyCode;
-		var keyC = String.fromCharCode(key);
-
-		if(keyC== "W"){
-			this.player.walkForwardStop();
-		}
-
-		if(keyC == "A"){
-			this.player.walkLeftStop();
-		}
-
-		if(keyC == "S"){
-			this.player.walkBackwardStop();
-		}
-
-		if(keyC == "D"){
-			this.player.walkRightStop();
-		}
-		this.update();
-	}
 
 	updateCamera(): void{
-		var look = new THREE.Vector3(this.player.modelPosition().x, this.player.modelPosition().y, this.player.modelPosition().z);
-		this.camera.position.set(this.player.modelPosition().x+25, this.player.modelPosition().y, this.player.modelPosition().z);
-		this.camera.lookAt(look);
+		this.player.position.set(
+			this.camera.position.x + Math.sin(this.camera.rotation.y + Math.PI/6) *0.75,
+			this.camera.position.y - 0.5 + Math.sin(4*(Date.now() * 0.0005) + this.camera.position.x + this.camera.position.z)*0.01,
+			this.camera.position.z + Math.cos(this.camera.rotation.y + Math.PI/6) *0.75
+		);
+
+		this.player.rotation.set(
+			this.camera.rotation.x,
+			this.camera.rotation.y - Math.PI,
+			this.camera.rotation.z
+		);
+
 	}
 
 	update (): void
 	{
-		this.player.update();
 		this.updateCamera();
-		this.renderer.render(this, this.camera);
+
 
 		this.spotlight.intensity = this.properties.light_intensity;
-		this.camera_control.update();
 
 		this.axes.visible = this.properties.axes;
 
 		requestAnimationFrame(() => this.update());
 
+		this.renderer.render(this, this.camera);
 	}
 }
 

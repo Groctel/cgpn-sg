@@ -27,8 +27,6 @@ export class JugadorPrimeraPersona extends ModelBase {
 
 		this.brazoAparte.add(this.brazoDch);
 
-		this.brazoAparte.rotation.x = (Math.PI/180)*-70;
-
 		//Creamos EL cubo que señala el objecto que sujeta el jugador
 		this.cubo = new THREE.Mesh(this.geometria,this.materialUp);
 		this.cubo.scale.x *=0.75;
@@ -46,88 +44,6 @@ export class JugadorPrimeraPersona extends ModelBase {
 		this.add(this.character);
 
 		//Animaciones
-		this.tweenUp = new TWEEN.Tween(this.character.position)
-			.to({y:1.5},1000)
-			.easing(TWEEN.Easing.Quadratic.Out)
-			.yoyo(true)
-			.repeat(Infinity);
-	}
-
-	walkRightStop(): void{
-		if(this.walking){
-			this.tweenUp.stop();
-			this.walking = false;
-		}
-
-		this.walkingRight = false;
-
-	}
-
-	walkRightStart(): void{
-		if(!this.walking){
-			this.tweenUp.start();
-			this.walking = true;
-		}
-
-		this.walkingRight = true;
-
-	}
-
-	walkLeftStop(): void{
-		if(this.walking){
-			this.tweenUp.stop();
-			this.walking = false;
-		}
-
-		this.walkingLeft = false;
-	}
-
-	walkLeftStart(): void{
-		if(!this.walking){
-			this.tweenUp.start();
-			this.walking = true;
-		}
-
-		this.walkingLeft = true;
-
-	}
-
-	walkForwardStop(): void{
-		if(this.walking){
-			this.tweenUp.stop();
-			this.walking = false;
-		}
-
-		this.walkingForward = false;
-	}
-
-	walkForwardStart(): void{
-		if(!this.walking){
-			this.tweenUp.start();
-			this.walking = true;
-		}
-
-		this.walkingForward = true;
-
-	}
-
-	walkBackwardStop(): void{
-		if(this.walking){
-			this.tweenUp.stop();
-			this.walking = false;
-		}
-
-		this.walkingBackward = false;
-	}
-
-	walkBackwardStart(): void{
-		if(!this.walking){
-			this.tweenUp.start();
-			this.walking = true;
-		}
-
-		this.walkingBackward = true;
-
 	}
 
 }

@@ -37,6 +37,7 @@
   "dependencies": {
     "dat-gui": "latest",
     "jquery": "^3.6.0",
-    "three": "latest"
+    "three": "latest",
+    "three-pointerlock": "^0.0.2"
   }
 }
