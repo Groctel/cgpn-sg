@@ -13,10 +13,11 @@ const weeds_col      = 3; const weeds_row      = 2;
 
 class BlockAttrs
 {
-	breakable:   boolean;
-	empty:       boolean;
-	transparent: boolean;
-	x_shaped:    boolean;
+	breakable?:   boolean = true;
+	empty?:       boolean = false;
+	groupable?:   boolean = false;
+	transparent?: boolean = false;
+	x_shaped?:    boolean = false;
 }
 
 export class Block
@@ -38,7 +39,6 @@ export class Blocks
 			breakable: false,
 			empty: true,
 			transparent: true,
-			x_shaped: false,
 		},
 		uv_bottom: null,
 		uv_side: null,
@@ -52,9 +52,6 @@ export class Blocks
 		attrs:
 		{
 			breakable: false,
-			empty: false,
-			transparent: false,
-			x_shaped: false,
 		},
 		uv_bottom: [
 			bedrock_col     / Textures.cols, (bedrock_row+1) / Textures.rows,
@@ -83,9 +80,6 @@ export class Blocks
 		attrs:
 		{
 			breakable: false,
-			empty: false,
-			transparent: false,
-			x_shaped: false,
 		},
 		uv_bottom: [
 			dev_marker_col     / Textures.cols, (dev_marker_row+1) / Textures.rows,
@@ -111,13 +105,7 @@ export class Blocks
 
 	public static readonly dirt: Block =
 	{
-		attrs:
-		{
-			breakable: true,
-			empty: false,
-			transparent: false,
-			x_shaped: false,
-		},
+		attrs: { },
 		uv_bottom: [
 			dirt_col     / Textures.cols, (dirt_row+1) / Textures.rows,
 			(dirt_col+1) / Textures.cols, (dirt_row+1) / Textures.rows,
@@ -142,13 +130,7 @@ export class Blocks
 
 	public static readonly grass: Block =
 	{
-		attrs:
-		{
-			breakable: true,
-			empty: false,
-			transparent: false,
-			x_shaped: false,
-		},
+		attrs: { },
 		uv_bottom: [
 			dirt_col     / Textures.cols, (dirt_row+1) / Textures.rows,
 			(dirt_col+1) / Textures.cols, (dirt_row+1) / Textures.rows,
@@ -175,10 +157,7 @@ export class Blocks
 	{
 		attrs:
 		{
-			breakable: true,
-			empty: false,
 			transparent: true,
-			x_shaped: false,
 		},
 		uv_bottom: [
 			oak_leaves_col     / Textures.cols, (oak_leaves_row+1) / Textures.rows,
@@ -204,13 +183,7 @@ export class Blocks
 
 	public static readonly oak_wood: Block =
 	{
-		attrs:
-		{
-			breakable: true,
-			empty: false,
-			transparent: false,
-			x_shaped: false,
-		},
+		attrs: { },
 		uv_bottom: [
 			oak_top_col     / Textures.cols, (oak_top_row+1) / Textures.rows,
 			(oak_top_col+1) / Textures.cols, (oak_top_row+1) / Textures.rows,
@@ -235,13 +208,7 @@ export class Blocks
 
 	public static readonly stone: Block =
 	{
-		attrs:
-		{
-			breakable: true,
-			empty: false,
-			transparent: false,
-			x_shaped: false,
-		},
+		attrs: { },
 		uv_bottom: [
 			stone_col     / Textures.cols, (stone_row+1) / Textures.rows,
 			(stone_col+1) / Textures.cols, (stone_row+1) / Textures.rows,
@@ -268,8 +235,6 @@ export class Blocks
 	{
 		attrs:
 		{
-			breakable: true,
-			empty: false,
 			transparent: true,
 			x_shaped: true,
 		},

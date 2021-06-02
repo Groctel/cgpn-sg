@@ -62,40 +62,42 @@ export default class ChunkBuilder
 
 	private generateBlockFaces (x: number, z: number, y: number): void
 	{
-		if (this.blockTransparent(x+1, z, y))
+		const block = this.struct[x][z][y];
+
+		if (this.blockTransparent(x+1, z, y) && !this.sameGroup(block, x+1, z, y))
 		{
 			this.buff.push(Faces.px.clone().translate(x, y, z));
-			this.uv.push(this.struct[x][z][y].uv_side);
+			this.uv.push(block.uv_side);
 		}
 
-		if (this.blockTransparent(x, z+1, y))
+		if (this.blockTransparent(x, z+1, y) && !this.sameGroup(block, x, z+1, y))
 		{
 			this.buff.push(Faces.pz.clone().translate(x, y, z));
-			this.uv.push(this.struct[x][z][y].uv_side);
+			this.uv.push(block.uv_side);
 		}
 
-		if (this.blockTransparent(x, z, y+1))
+		if (this.blockTransparent(x, z, y+1) && !this.sameGroup(block, x, z, y+1))
 		{
 			this.buff.push(Faces.py.clone().translate(x, y, z));
-			this.uv.push(this.struct[x][z][y].uv_top);
+			this.uv.push(block.uv_top);
 		}
 
-		if (this.blockTransparent(x-1, z, y))
+		if (this.blockTransparent(x-1, z, y) && !this.sameGroup(block, x-1, z, y))
 		{
 			this.buff.push(Faces.nx.clone().translate(x, y, z));
-			this.uv.push(this.struct[x][z][y].uv_side);
+			this.uv.push(block.uv_side);
 		}
 
-		if (this.blockTransparent(x, z-1, y))
+		if (this.blockTransparent(x, z-1, y) && !this.sameGroup(block, x, z-1, y))
 		{
 			this.buff.push(Faces.nz.clone().translate(x, y, z));
-			this.uv.push(this.struct[x][z][y].uv_side);
+			this.uv.push(block.uv_side);
 		}
 
-		if (this.blockTransparent(x, z, y-1))
+		if (this.blockTransparent(x, z, y-1) && !this.sameGroup(block, x, z, y-1))
 		{
 			this.buff.push(Faces.ny.clone().translate(x, y, z));
-			this.uv.push(this.struct[x][z][y].uv_bottom);
+			this.uv.push(block.uv_bottom);
 		}
 	}
 
@@ -126,6 +128,41 @@ export default class ChunkBuilder
 
 		this.buff.push(Faces.x2.clone().rotateY(Math.PI).translate(x + shift_x2, y, z + shift_z2));
 		this.uv.push(this.struct[x][z][y].uv_x2);
+	}
+
+	private sameGroup (block: Block, x: number, z: number, y: number): boolean
+	{
+		let same_group = block.attrs.groupable;
+
+		if (same_group)
+		{
+			if (x < 0)
+			{
+				same_group = this.ady_chunks.nx !== null &&
+					this.ady_chunks.nx.struct()[Chunk.base-1][z][y] === block;
+			}
+			else if (x >= Chunk.base)
+			{
+				same_group = this.ady_chunks.px !== null &&
+					this.ady_chunks.px.struct()[0][z][y] === block;
+			}
+			else if (z < 0)
+			{
+				same_group = this.ady_chunks.nz !== null &&
+					this.ady_chunks.nz.struct()[x][Chunk.base-1][y] === block;
+			}
+			else if (z >= Chunk.base)
+			{
+				same_group = this.ady_chunks.pz !== null &&
+					this.ady_chunks.pz.struct()[x][0][y] === block;
+			}
+			else if (y >= 0 && y < Chunk.height)
+			{
+				same_group = this.struct[x][z][y] === block;
+			}
+		}
+
+		return same_group;
 	}
 
 	public generateMesh (): void
