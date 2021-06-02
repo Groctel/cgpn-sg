@@ -1,12 +1,13 @@
 import * as $ from 'jquery';
 import * as THREE from 'three';
 import { GUI } from 'dat-gui';
-import * as TWEEN from '@tweenjs/tween.js';
+import * as CANNON from 'cannon';
 
 import {PointerLockControls} from 'three/examples/jsm/controls/PointerLockControls.js';
 import {JugadorPrimeraPersona} from '../Modelos/JugadorPrimeraPersona';
 import {DropItem} from '../Modelos/DropItem';
-import {ModelBase} from '../Modelos/ModelBase';
+
+import Chunk from './chunk';
 
 const SCENE_DEFAULTS = {
 	AXES:            true,
@@ -29,6 +30,26 @@ class GameScene extends THREE.Scene
 	player: JugadorPrimeraPersona;
 	drop: DropItem;
 	controls;
+	cannonWorld: CANNON.World;
+
+	world: Array<Array<Chunk>>;
+	world_size = 5;
+
+	body: CANNON.Body;
+	shape: CANNON.Box;
+
+	cubeBody: CANNON.Body;
+	cubeshape: CANNON.Box;
+
+	cubeGeo: THREE.BoxGeometry;
+	cubeMesh: THREE.Mesh;
+
+	timeStep = 1/60;
+	speed = 1.5;
+
+	//Fricción
+	contactMaterial: CANNON.ContactMaterial;
+	physicsMaterial: CANNON.Material;
 
 	constructor (canvas: string)
 	{
@@ -52,7 +73,7 @@ class GameScene extends THREE.Scene
 		this.gui      = this.constructGUI();
 		this.constructLights();
 		this.constructCamera();
-
+		this.constructCannon();
 
 		this.axes = new THREE.AxesHelper (50);
 
@@ -66,8 +87,70 @@ class GameScene extends THREE.Scene
 		this.add(this.player);
 
 		this.controls = new PointerLockControls(this.camera, this.renderer.domElement);
+
+/*		this.world = new Array<Array<Chunk>>(this.world_size);
+
+		for (let x = 0; x < this.world_size; x++)
+		{
+			this.world[x] = new Array<Chunk>(this.world_size);
+
+			for (let z = 0; z < this.world_size; z++)
+			{
+				this.world[x][z] = new Chunk();
+				this.add(this.world[x][z].generateTerrain()
+					.translateX(x*Chunk.base)
+					.translateZ(z*Chunk.base)
+				);
+			}
+		}*/
+
+		this.cubeGeo = new THREE.BoxGeometry(5,5,5);
+		this.cubeMesh = new THREE.Mesh(this.cubeGeo, new THREE.MeshBasicMaterial({color:0xffff00}));
+
+		this.add(this.cubeMesh);
+
 	}
 
+	constructCannon() : void
+	{
+		this.cannonWorld = new CANNON.World();
+		this.cannonWorld.gravity.set(0,-10,0);
+
+		//Inicializamos la fricción
+		this.physicsMaterial = new CANNON.Material("slipperyMaterial");
+		this.contactMaterial = new CANNON.ContactMaterial(
+			this.physicsMaterial,
+			this.physicsMaterial
+		);
+
+		this.cannonWorld.addContactMaterial(this.contactMaterial);
+
+		this.body = new CANNON.Body({ mass: 30, material: this.physicsMaterial});
+		this.shape = new CANNON.Box(new CANNON.Vec3(1,1,1));
+		this.body.addShape(this.shape);
+		this.cannonWorld.addBody(this.body);
+
+		const plane = new CANNON.Body({mass: 0, material: this.physicsMaterial}); //Masa 0= estático
+		const shapeP = new CANNON.Plane();
+		plane.addShape(shapeP);
+
+		this.cubeBody = new CANNON.Body({mass: 0, material: this.physicsMaterial});
+		this.cubeshape = new CANNON.Box(new CANNON.Vec3(5,5,5));
+
+		this.cubeBody.addShape(this.cubeshape);
+
+
+		this.cannonWorld.addBody(plane);
+		this.cannonWorld.addBody(this.cubeBody);
+
+		plane.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2); // Rotamos el plano
+
+		this.body.position.y += 0.5;
+		this.cubeBody.position.y += 2.5;
+		this.cubeBody.position.z += 15;
+		this.cubeBody.position.x += 15;
+
+	}
 
 	constructCamera (): void
 	{
@@ -79,12 +162,9 @@ class GameScene extends THREE.Scene
 		);
 
 		this.camera.position.set(0, 4.5, 0);
-		//this.camera.lookAt(new THREE.Vector3(this.player.modelPosition().x, this.player.modelPosition().y, this.player.modelPosition().z));
 
 		this.add(this.camera);
 
-		this.camera.lookAt(0,4.5,0)
-//		this.camera_control.target      = new THREE.Vector3(this.player.modelPosition().x, this.player.modelPosition().y, this.player.modelPosition().z);
 	}
 
 	constructGUI (): GUI
@@ -146,38 +226,51 @@ class GameScene extends THREE.Scene
 		var key = event.wich || event.keyCode;
 		var keyC = String.fromCharCode(key);
 
+		//El movimiento se efectua sobre la esfera para las físicas
+		//Es necesario que se relaciones con la rotación de la cámara para que avanzar hacia adelante
+		//con la w siempre sea el adelante de la cámara
 		if(keyC == "W"){
-	//		this.player.walkForwardStart();
-			//this.camera.position.set(this.camera.position.x, this.camera.pddosition.y, this.camera.position.z+0.1);
-			this.controls.moveForward(1)
+			this.controls.moveForward(this.speed);
 		}
 
 		if(keyC == "A"){
-	//		this.player.walkLeftStart();
-			//this.camera.position.set(this.camera.position.x+0.1, this.camera.position.y, this.camera.position.z);
-			this.controls.moveRight(-1)
+			this.controls.moveRight(-this.speed);
 		}
 
 		if(keyC == "S"){
-	//		this.player.walkBackwardStart();
-			//this.camera.position.set(this.camera.position.x, this.camera.position.y, this.camera.position.z-0.1);
-			this.controls.moveForward(-1)
+			this.controls.moveForward(-this.speed);
 		}
 
 		if(keyC == "D"){
-	//		this.player.walkRightStart();
-			//this.camera.position.set(this.camera.position.x-0.1, this.camera.position.y, this.camera.position.z);
-			this.controls.moveRight(1)
+			this.controls.moveRight(this.speed);
 		}
 
 		if(keyC == "Q"){
 			this.controls.lock();
 		}
 
+		this.body.position.x = this.camera.position.x;
+		this.body.position.z = this.camera.position.z;
 
 		this.update();
 	}
 
+	updatePhysics(){
+		this.cannonWorld.step(this.timeStep);
+
+		this.camera.position.set(
+			this.body.position.x,
+			this.body.position.y + 3.5,
+			this.body.position.z
+		);
+
+		this.cubeMesh.position.set(
+			this.cubeBody.position.x,
+			this.cubeBody.position.y,
+			this.cubeBody.position.z,
+		);
+
+	}
 
 	updateCamera(): void{
 		this.player.position.set(
@@ -197,7 +290,7 @@ class GameScene extends THREE.Scene
 	update (): void
 	{
 		this.updateCamera();
-
+		this.updatePhysics();
 
 		this.spotlight.intensity = this.properties.light_intensity;
 

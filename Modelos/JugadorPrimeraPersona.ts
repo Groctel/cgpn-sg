@@ -1,11 +1,13 @@
 import * as THREE from 'three';
 import * as TWEEN from '@tweenjs/tween.js';
-import {ModelBase} from './ModelBase';
 
 
-export class JugadorPrimeraPersona extends ModelBase {
+export class JugadorPrimeraPersona extends THREE.Object3D {
 	private materialUp = new THREE.MeshNormalMaterial();
+	private material = new THREE.MeshBasicMaterial({color:0xff0000});
+	private geometria = new THREE.BoxGeometry(1, 1, 1);
 
+	private character: THREE.Object3D;
 	private brazoAparte: THREE.Object3D;
 	private brazoDch: THREE.Object3D;
 	private cubo: THREE.Mesh;

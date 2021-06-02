@@ -9,3 +9,5 @@ $(function (): void
 	window.addEventListener('keydown', (event) => scene.onKeyDown(event),true);
 	scene.update();
 });
+
+
