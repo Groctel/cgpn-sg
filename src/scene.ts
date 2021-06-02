@@ -125,7 +125,7 @@ class GameScene extends THREE.Scene
 
 		this.cannonWorld.addContactMaterial(this.contactMaterial);
 
-		this.body = new CANNON.Body({ mass: 30, material: this.physicsMaterial});
+		this.body = new CANNON.Body({ mass: 10, material: this.physicsMaterial});
 		this.shape = new CANNON.Box(new CANNON.Vec3(1,1,1));
 		this.body.addShape(this.shape);
 		this.cannonWorld.addBody(this.body);
@@ -249,6 +249,10 @@ class GameScene extends THREE.Scene
 			this.controls.lock();
 		}
 
+		if(key == 32 && this.body.velocity.y <= 0.0){
+			this.body.applyImpulse(new CANNON.Vec3(0,360,0), this.body.position);
+		}
+
 		this.body.position.x = this.camera.position.x;
 		this.body.position.z = this.camera.position.z;
 
@@ -257,6 +261,8 @@ class GameScene extends THREE.Scene
 
 	updatePhysics(){
 		this.cannonWorld.step(this.timeStep);
+
+		console.log(this.body.velocity.y);
 
 		this.camera.position.set(
 			this.body.position.x,
