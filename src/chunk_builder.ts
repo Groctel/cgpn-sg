@@ -1,39 +1,11 @@
 import * as THREE from 'three';
 import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils';
 
-import { Block } from './blocks';
-import Chunk from './chunk';
+import { Block, Blocks } from './blocks';
+import { AdyChunks, Chunk } from './chunk';
+import Faces from './faces';
+import TreeGenerator from './tree_generator';
 import Textures from './textures';
-
-const px = 0; const nx = 1;
-const pz = 2; const nz = 3;
-const py = 4; const ny = 5;
-
-const faces = [
-	new THREE.PlaneGeometry(1,1)
-		.rotateY(Math.PI / 2)
-		.translate(0.5, 0, 0),
-
-	new THREE.PlaneGeometry(1,1)
-		.rotateY(-Math.PI / 2)
-		.translate(-0.5, 0, 0),
-
-	new THREE.PlaneGeometry(1,1)
-		.translate(0, 0, 0.5),
-
-	new THREE.PlaneGeometry(1,1)
-		.rotateY(Math.PI)
-		.translate(0, 0, -0.5),
-
-	new THREE.PlaneGeometry(1,1)
-		.rotateX(-Math.PI / 2)
-		.translate(0, 0.5, 0),
-
-	new THREE.PlaneGeometry(1,1)
-		.rotateX(Math.PI / 2)
-		.translate(0, -0.5, 0),
-
-];
 
 export default class ChunkBuilder
 {
@@ -43,17 +15,16 @@ export default class ChunkBuilder
 
 	private chunk:      Chunk;
 	private struct:     Block[][][];
-	private ady_chunks: Block[][][][];
+	private ady_chunks: AdyChunks;
 
-	constructor (chunk: Chunk, ady_chunks: Chunk[])
+	constructor (chunk: Chunk, ady_chunks: AdyChunks)
 	{
 		this.chunk      = chunk;
 		this.struct     = this.chunk.struct();
-		this.ady_chunks = new Array<Array<Array<Array<Block>>>>(4);
+		this.ady_chunks = ady_chunks;
 
-		for (let i = 0; i < 4; i++)
-			this.ady_chunks[i] = ady_chunks[i] === null ? null : ady_chunks[i].struct();
-
+		this.generateTrees();
+		chunk.updateMaxHeight();
 		this.generateMesh();
 	}
 
@@ -63,23 +34,23 @@ export default class ChunkBuilder
 
 		if (x < 0)
 		{
-			transparent = this.ady_chunks[nx] === null ||
-				this.ady_chunks[nx][Chunk.base-1][z][y].attrs.transparent;
+			transparent = this.ady_chunks.nx === null ||
+				this.ady_chunks.nx.struct()[Chunk.base-1][z][y].attrs.transparent;
 		}
 		else if (x >= Chunk.base)
 		{
-			transparent = this.ady_chunks[px] === null ||
-				this.ady_chunks[px][0][z][y].attrs.transparent;
+			transparent = this.ady_chunks.px === null ||
+				this.ady_chunks.px.struct()[0][z][y].attrs.transparent;
 		}
 		else if (z < 0)
 		{
-			transparent = this.ady_chunks[nz] === null ||
-				this.ady_chunks[nz][x][Chunk.base-1][y].attrs.transparent;
+			transparent = this.ady_chunks.nz === null ||
+				this.ady_chunks.nz.struct()[x][Chunk.base-1][y].attrs.transparent;
 		}
 		else if (z >= Chunk.base)
 		{
-			transparent = this.ady_chunks[pz] === null ||
-				this.ady_chunks[pz][x][0][y].attrs.transparent;
+			transparent = this.ady_chunks.pz === null ||
+				this.ady_chunks.pz.struct()[x][0][y].attrs.transparent;
 		}
 		else if (y >= 0 && y < Chunk.height)
 		{
@@ -93,39 +64,68 @@ export default class ChunkBuilder
 	{
 		if (this.blockTransparent(x+1, z, y))
 		{
-			this.buff.push(faces[px].clone().translate(x, y, z));
+			this.buff.push(Faces.px.clone().translate(x, y, z));
 			this.uv.push(this.struct[x][z][y].uv_side);
 		}
 
 		if (this.blockTransparent(x, z+1, y))
 		{
-			this.buff.push(faces[pz].clone().translate(x, y, z));
+			this.buff.push(Faces.pz.clone().translate(x, y, z));
 			this.uv.push(this.struct[x][z][y].uv_side);
 		}
 
 		if (this.blockTransparent(x, z, y+1))
 		{
-			this.buff.push(faces[py].clone().translate(x, y, z));
+			this.buff.push(Faces.py.clone().translate(x, y, z));
 			this.uv.push(this.struct[x][z][y].uv_top);
 		}
 
 		if (this.blockTransparent(x-1, z, y))
 		{
-			this.buff.push(faces[nx].clone().translate(x, y, z));
+			this.buff.push(Faces.nx.clone().translate(x, y, z));
 			this.uv.push(this.struct[x][z][y].uv_side);
 		}
 
 		if (this.blockTransparent(x, z-1, y))
 		{
-			this.buff.push(faces[nz].clone().translate(x, y, z));
+			this.buff.push(Faces.nz.clone().translate(x, y, z));
 			this.uv.push(this.struct[x][z][y].uv_side);
 		}
 
 		if (this.blockTransparent(x, z, y-1))
 		{
-			this.buff.push(faces[ny].clone().translate(x, y, z));
+			this.buff.push(Faces.ny.clone().translate(x, y, z));
 			this.uv.push(this.struct[x][z][y].uv_bottom);
 		}
+	}
+
+	private generateTrees (): void
+	{
+		for (let x = 0; x < Chunk.base; x++)
+			for (let z = 0; z < Chunk.base; z++)
+				for (let y = 0; y <= this.chunk.maxHeight(); y++)
+					if (this.struct[x][z][y] === Blocks.dev_marker)
+						TreeGenerator.genAt(x, z, y, this.chunk, this.ady_chunks);
+	}
+
+	private generateXBlock (x: number, z: number, y: number): void
+	{
+		const shift_x1 = (Math.random() - 0.5) / 2.5;
+		const shift_z1 = (Math.random() - 0.5) / 2.5;
+		const shift_x2 = shift_x1 - (Math.random() - 0.5) / 6;
+		const shift_z2 = shift_z1 - (Math.random() - 0.5) / 6;
+
+		this.buff.push(Faces.x1.clone().translate(x + shift_x1, y, z + shift_z1));
+		this.uv.push(this.struct[x][z][y].uv_x1);
+
+		this.buff.push(Faces.x1.clone().rotateY(Math.PI).translate(x + shift_x1, y, z + shift_z1));
+		this.uv.push(this.struct[x][z][y].uv_x2);
+
+		this.buff.push(Faces.x2.clone().translate(x + shift_x2, y, z + shift_z2));
+		this.uv.push(this.struct[x][z][y].uv_x1);
+
+		this.buff.push(Faces.x2.clone().rotateY(Math.PI).translate(x + shift_x2, y, z + shift_z2));
+		this.uv.push(this.struct[x][z][y].uv_x2);
 	}
 
 	public generateMesh (): void
@@ -137,7 +137,12 @@ export default class ChunkBuilder
 			for (let z = 0; z < Chunk.base; z++)
 				for (let y = 0; y <= this.chunk.maxHeight(); y++)
 					if (!this.struct[x][z][y].attrs.empty)
-						this.generateBlockFaces(x, z, y);
+					{
+						if (!this.struct[x][z][y].attrs.x_shaped)
+							this.generateBlockFaces(x, z, y);
+						else
+							this.generateXBlock(x, z, y);
+					}
 
 		const geometry = BufferGeometryUtils.mergeBufferGeometries(this.buff);
 

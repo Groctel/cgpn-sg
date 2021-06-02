@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import Chunk from './chunk';
+import { AdyChunks, Chunk } from './chunk';
 import ChunkBuilder from './chunk_builder';
 
 export default class World
@@ -9,7 +9,7 @@ export default class World
 	private static structure: Chunk[][];
 	private static builders:  ChunkBuilder[][];
 
-	public static readonly size = 5;
+	public static readonly size = 10;
 
 	constructor (scene: THREE.Scene)
 	{
@@ -33,19 +33,21 @@ export default class World
 
 	private buildStructure (x: number, z: number): void
 	{
-		World.builders[x][z] = new ChunkBuilder(
-			World.structure[x][z],
-			[
-				x+1 < World.size ? World.structure[x+1][z] : null,
-				x-1 > 0          ? World.structure[x-1][z] : null,
-				z+1 < World.size ? World.structure[x][z+1] : null,
-				z-1 > 0          ? World.structure[x][z-1] : null
-			]
+		const ady_chunks = new AdyChunks(
+			x+1 < World.size ? World.structure[x+1][z] : null,
+			x-1 >= 0         ? World.structure[x-1][z] : null,
+			z+1 < World.size ? World.structure[x][z+1] : null,
+			z-1 >= 0         ? World.structure[x][z-1] : null,
+			x+1 < World.size && z+1 < World.size ? World.structure[x+1][z+1] : null,
+			x+1 < World.size && z-1 >= 0         ? World.structure[x+1][z-1] : null,
+			x-1 >= 0         && z+1 < World.size ? World.structure[x-1][z+1] : null,
+			x-1 >= 0         && z-1 >= 0         ? World.structure[x-1][z-1] : null
 		);
+		World.builders[x][z] = new ChunkBuilder(World.structure[x][z], ady_chunks);
 
 		World.scene.add(World.builders[x][z].chunkMesh()
-			.translateX(x*Chunk.base - (Chunk.base * World.size) / 2)
-			.translateZ(z*Chunk.base - (Chunk.base * World.size) / 2)
+			.translateX(x * Chunk.base - (Chunk.base * World.size) / 2)
+			.translateZ(z * Chunk.base - (Chunk.base * World.size) / 2)
 		);
 	}
 
