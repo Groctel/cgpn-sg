@@ -27,7 +27,8 @@ class GameScene extends THREE.Scene
 	camera: THREE.PerspectiveCamera;
 	spotlight: THREE.SpotLight;
 
-	player: JugadorPrimeraPersona;
+	playerModel: JugadorPrimeraPersona;
+	player: THREE.Mesh;
 	drop: DropItem;
 	controls;
 	cannonWorld: CANNON.World;
@@ -66,7 +67,10 @@ class GameScene extends THREE.Scene
 			}
 		};
 
-		this.player = new JugadorPrimeraPersona();
+		this.playerModel = new JugadorPrimeraPersona();
+
+
+
 		this.drop = new DropItem(new THREE.MeshBasicMaterial({color: 0xff0000}));
 
 		this.renderer = this.constructRenderer(canvas);
@@ -84,10 +88,18 @@ class GameScene extends THREE.Scene
 		this.drop.position.x += 4;
 		this.drop.position.y += 1;
 
-		this.add(this.player);
-
 		this.controls = new PointerLockControls(this.camera, this.renderer.domElement);
 
+		this.playerModel.position.set(
+			this.camera.position.x + 1.5,
+			this.camera.position.y - 0.5,
+			this.camera.position.z - 1.75
+		);
+
+		this.player = new THREE.Mesh();
+		this.player.add(this.playerModel);
+
+		this.add(this.player);
 /*		this.world = new Array<Array<Chunk>>(this.world_size);
 
 		for (let x = 0; x < this.world_size; x++)
@@ -279,15 +291,16 @@ class GameScene extends THREE.Scene
 	}
 
 	updateCamera(): void{
+
 		this.player.position.set(
-			this.camera.position.x + Math.sin(this.camera.rotation.y + Math.PI/6) *0.75,
-			this.camera.position.y - 0.5 + Math.sin(4*(Date.now() * 0.0005) + this.camera.position.x + this.camera.position.z)*0.01,
-			this.camera.position.z + Math.cos(this.camera.rotation.y + Math.PI/6) *0.75
+			this.camera.position.x,
+			this.camera.position.y - 4.5,
+			this.camera.position.z
 		);
 
 		this.player.rotation.set(
 			this.camera.rotation.x,
-			this.camera.rotation.y - Math.PI,
+			this.camera.rotation.y,
 			this.camera.rotation.z
 		);
 
