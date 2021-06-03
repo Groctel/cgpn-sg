@@ -38,7 +38,7 @@ export class JugadorPrimeraPersona extends THREE.Object3D {
 
 		this.cubo.position.z -= 2.7;
 		this.cubo.position.y -= 0.5;
-		this.cubo.position.x += 0.5;
+		this.cubo.position.x -= 0.5;
 
 
 		this.character = new THREE.Object3D();

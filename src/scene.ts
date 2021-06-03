@@ -82,11 +82,7 @@ class GameScene extends THREE.Scene
 		this.axes = new THREE.AxesHelper (50);
 
 		this.add(this.axes);
-		this.add(this.drop);
 		this.add(new THREE.GridHelper(100,100));
-
-		this.drop.position.x += 4;
-		this.drop.position.y += 1;
 
 		this.controls = new PointerLockControls(this.camera, this.renderer.domElement);
 
@@ -130,16 +126,17 @@ class GameScene extends THREE.Scene
 
 		//Inicializamos la fricción
 		this.physicsMaterial = new CANNON.Material("slipperyMaterial");
-		this.contactMaterial = new CANNON.ContactMaterial(
+			this.contactMaterial = new CANNON.ContactMaterial(
 			this.physicsMaterial,
 			this.physicsMaterial
 		);
 
 		this.cannonWorld.addContactMaterial(this.contactMaterial);
 
-		this.body = new CANNON.Body({ mass: 10, material: this.physicsMaterial});
-		this.shape = new CANNON.Box(new CANNON.Vec3(1,1,1));
+		this.body = new CANNON.Body({ mass: 30, material: this.physicsMaterial});
+		this.shape = new CANNON.Box(new CANNON.Vec3(0.75,1.8,0.75));
 		this.body.addShape(this.shape);
+
 		this.cannonWorld.addBody(this.body);
 
 		const plane = new CANNON.Body({mass: 0, material: this.physicsMaterial}); //Masa 0= estático
@@ -147,9 +144,10 @@ class GameScene extends THREE.Scene
 		plane.addShape(shapeP);
 
 		this.cubeBody = new CANNON.Body({mass: 0, material: this.physicsMaterial});
-		this.cubeshape = new CANNON.Box(new CANNON.Vec3(5,5,5));
+		this.cubeshape = new CANNON.Box(new CANNON.Vec3(1,1,1));
 
 		this.cubeBody.addShape(this.cubeshape);
+		this.cubeBody.addShape(new CANNON.Box(new CANNON.Vec3(0.75,2,0.75)));
 
 
 		this.cannonWorld.addBody(plane);
@@ -173,7 +171,7 @@ class GameScene extends THREE.Scene
 			1000
 		);
 
-		this.camera.position.set(0, 4.5, 0);
+		this.camera.position.set(0, 1.5, 0);
 
 		this.add(this.camera);
 
@@ -261,8 +259,8 @@ class GameScene extends THREE.Scene
 			this.controls.lock();
 		}
 
-		if(key == 32 && this.body.velocity.y <= 0.0){
-			this.body.applyImpulse(new CANNON.Vec3(0,360,0), this.body.position);
+		if(keyC == " "){
+			this.body.applyForce(new CANNON.Vec3(0,30,0), this.body.position);
 		}
 
 		this.body.position.x = this.camera.position.x;
@@ -278,7 +276,7 @@ class GameScene extends THREE.Scene
 
 		this.camera.position.set(
 			this.body.position.x,
-			this.body.position.y + 3.5,
+			this.body.position.y + 0.5,
 			this.body.position.z
 		);
 
@@ -294,7 +292,7 @@ class GameScene extends THREE.Scene
 
 		this.player.position.set(
 			this.camera.position.x,
-			this.camera.position.y - 4.5,
+			this.camera.position.y - 1,
 			this.camera.position.z
 		);
 
