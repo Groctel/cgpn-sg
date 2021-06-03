@@ -1,138 +1,136 @@
-import * as THREE from 'three';
-import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils';
-
 import { Block, Blocks } from './blocks';
+import Noise from './noise';
 
-const px = 0; const nx = 1; const py = 2;
-const ny = 3; const pz = 4; const nz = 5;
-
-export default class Chunk
+export class AdyChunks
 {
-	private static readonly faces = [
-		new THREE.PlaneGeometry(1,1)
-			.rotateY(Math.PI / 2)
-			.translate(0.5, 0, 0),
+	public px: Chunk;
+	public nx: Chunk;
+	public pz: Chunk;
+	public nz: Chunk;
+	public pxpz: Chunk;
+	public pxnz: Chunk;
+	public nxpz: Chunk;
+	public nxnz: Chunk;
 
-		new THREE.PlaneGeometry(1,1)
-			.rotateY(-Math.PI / 2)
-			.translate(-0.5, 0, 0),
+	constructor (
+		px: Chunk, nx: Chunk, pz: Chunk, nz: Chunk,
+		pxpz: Chunk, pxnz: Chunk, nxpz: Chunk, nxnz: Chunk
+	) {
+		this.px = px; this.nx = nx;
+		this.pz = pz; this.nz = nz;
+		this.pxpz = pxpz; this.pxnz = pxnz;
+		this.nxpz = nxpz; this.nxnz = nxnz;
+	}
+}
 
-		new THREE.PlaneGeometry(1,1)
-			.rotateX(-Math.PI / 2)
-			.translate(0, 0.5, 0),
+export class Chunk
+{
+	private static noise_terrain = new Noise(Math.random());
+	private static noise_plants  = new Noise(Math.random());
+	private structure: Block[][][];
+	private pos_x: number;
+	private pos_z: number;
+	private max_height = 0;
 
-		new THREE.PlaneGeometry(1,1)
-			.rotateX(Math.PI / 2)
-			.translate(0, -0.5, 0),
+	public static readonly base   = 16;
+	public static readonly height = 64;
 
-		new THREE.PlaneGeometry(1,1)
-			.translate(0, 0, 0.5),
-
-		new THREE.PlaneGeometry(1,1)
-			.rotateY(Math.PI)
-			.translate(0, 0, -0.5)
-	];
-	private structure: Array<Array<Array<Block>>>;
-	public static readonly base = 16;
-	public static readonly height = 32;
-	private materials = Array<THREE.MeshBasicMaterial>();
-	private terrain = Array<THREE.BufferGeometry>();
-	private group_indexes = Array<{xi: number, yi: number, zi: number}>();
-
-	constructor ()
+	constructor (pos_x: number, pos_z: number, world_size: number)
 	{
+		this.pos_x     = pos_x;
+		this.pos_z     = pos_z;
 		this.structure = new Array<Array<Array<Block>>>(Chunk.base);
 
 		for (let x = 0; x < Chunk.base; x++)
 		{
-			this.structure[x] = new Array<Array<Block>>(Chunk.height);
+			this.structure[x] = new Array<Array<Block>>(Chunk.base);
 
-			for (let y = 0; y < Chunk.height; y++)
+			for (let z = 0; z < Chunk.base; z++)
 			{
-				this.structure[x][y] = new Array<Block>(Chunk.base);
-
-				for (let z = 0; z < Chunk.base; z++)
-					if ((x+y+z) % 2)
-						this.structure[x][y][z] = Blocks.grass;
-					else
-						this.structure[x][y][z] = Blocks.air;
+				this.structure[x][z] = new Array<Block>(Chunk.height);
+				this.generateTerrain(x, z, world_size);
+				this.generatePlants(x, z, world_size);
 			}
 		}
+
+		this.updateMaxHeight();
 	}
 
-	private blockEmpty (x: number, y: number, z: number): boolean
+	public findHighestBlock (x: number, z: number): number
 	{
-		let empty = true;
+		let y = Chunk.height - 1;
 
-		if (
-			x >= 0 && x < Chunk.base &&
-			y >= 0 && y < Chunk.height &&
-			z >= 0 && z < Chunk.base
-		) {
-			empty = this.structure[x][y][z].attrs.empty;
-		}
+		while (this.structure[x][z][y].attrs.empty)
+			y--;
 
-		return empty;
+		return y;
 	}
 
-	private generateBlockFaces (x: number, y: number, z: number): void
+	private generatePlants (x: number, z: number, world_size: number): void
 	{
-		if (this.blockEmpty(x+1, y, z))
-		{
-			this.terrain.push(Chunk.faces[px].clone().translate(x, y, z));
-			this.materials.push(this.structure[x][y][z].mat_side);
-			this.group_indexes.push({xi: x, yi: y, zi: x});
-		}
+		const y = this.findHighestBlock(x, z);
 
-		if (this.blockEmpty(x, y, z+1))
+		if (y < Chunk.height-1 && this.structure[x][z][y] === Blocks.grass)
 		{
-			this.terrain.push(Chunk.faces[nx].clone().translate(x, y, z));
-			this.materials.push(this.structure[x][y][z].mat_side);
-			this.group_indexes.push({xi: x, yi: y, zi: x});
-		}
+			const noise = Chunk.noise_plants.simplex2(
+				(this.pos_x * Chunk.base + x) / (world_size * Chunk.base / 5) + 0.1,
+				(this.pos_z * Chunk.base + z) / (world_size * Chunk.base / 5) + 0.1
+			);
 
-		if (this.blockEmpty(x, y-1, z))
-		{
-			this.terrain.push(Chunk.faces[py].clone().translate(x, y, z));
-			this.materials.push(this.structure[x][y][z].mat_bottom);
-			this.group_indexes.push({xi: x, yi: y, zi: x});
-		}
-
-		if (this.blockEmpty(x, y+1, z))
-		{
-			this.terrain.push(Chunk.faces[ny].clone().translate(x, y, z));
-			this.materials.push(this.structure[x][y][z].mat_top);
-			this.group_indexes.push({xi: x, yi: y, zi: x});
-		}
-
-		if (this.blockEmpty(x, y, z-1))
-		{
-			this.terrain.push(Chunk.faces[pz].clone().translate(x, y, z));
-			this.materials.push(this.structure[x][y][z].mat_side);
-			this.group_indexes.push({xi: x, yi: y, zi: x});
-		}
-
-		if (this.blockEmpty(x-1, y, z))
-		{
-			this.terrain.push(Chunk.faces[nz].clone().translate(x, y, z));
-			this.materials.push(this.structure[x][y][z].mat_side);
-			this.group_indexes.push({xi: x, yi: y, zi: x});
+			if (noise > 0.05)
+				if (Math.abs(~~(noise * 10000) % 100))
+					this.structure[x][z][y+1] = Blocks.weeds;
+				else
+					this.structure[x][z][y+1] = Blocks.dev_marker;
 		}
 	}
 
-	public generateTerrain (): THREE.Mesh
+	private generateTerrain (x: number, z: number, world_size: number): void
 	{
-		this.terrain   = new Array<THREE.BufferGeometry>();
-		this.materials = new Array<THREE.MeshBasicMaterial>();
+		const perlin = Chunk.noise_terrain.perlin2(
+			(this.pos_x * Chunk.base + x) / (world_size * Chunk.base / 5) + 0.1,
+			(this.pos_z * Chunk.base + z) / (world_size * Chunk.base / 5) + 0.1
+		);
+
+		const bedrock_height = Math.ceil(Math.random() * 3);
+		const stone_height   = Math.ceil(Math.abs(perlin * 10) + 5);
+		const terrain_height = Math.ceil(Math.abs(perlin * 15) + 10);
+
+		let y = 0;
+
+		while (y < bedrock_height)
+			this.structure[x][z][y++] = Blocks.bedrock;
+
+		while (y < stone_height)
+			this.structure[x][z][y++] = Blocks.stone;
+
+		while (y < terrain_height -1)
+			this.structure[x][z][y++] = Blocks.dirt;
+
+		this.structure[x][z][y++] = Blocks.grass;
+
+		while (y < Chunk.height)
+			this.structure[x][z][y++] = Blocks.air;
+	}
+
+	public updateMaxHeight (): void
+	{
+		let max_height = 0;
 
 		for (let x = 0; x < Chunk.base; x++)
-			for (let y = 0; y < Chunk.height; y++)
-				for (let z = 0; z < Chunk.base; z++)
-					if (!this.structure[x][y][z].attrs.empty)
-						this.generateBlockFaces(x, y, z);
+			for (let z = 0; z < Chunk.base; z++)
+				max_height = Math.max(max_height, this.findHighestBlock(x, z));
 
-		const geometry = BufferGeometryUtils.mergeBufferGeometries(this.terrain);
+		this.max_height = max_height;
+	}
 
-		return new THREE.Mesh(geometry, new THREE.MeshNormalMaterial);
+	public maxHeight (): number
+	{
+		return this.max_height;
+	}
+
+	public struct (): Block[][][]
+	{
+		return this.structure;
 	}
 }

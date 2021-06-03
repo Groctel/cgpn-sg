@@ -1,11 +1,13 @@
-import * as $ from 'jquery';
+import $ from 'jquery';
 import * as THREE from 'three';
 import { GUI } from 'dat-gui';
-
 import {PointerLockControls} from 'three/examples/jsm/controls/PointerLockControls.js';
 import {JugadorPrimeraPersona} from '../Modelos/JugadorPrimeraPersona';
+import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
+import { SSAOPass } from 'three/examples/jsm/postprocessing/SSAOPass';
 
-import Chunk from './chunk';
+import World from './world';
 
 const SCENE_DEFAULTS = {
 	AXES:            true,
@@ -24,13 +26,15 @@ class GameScene extends THREE.Scene
 	renderer: THREE.WebGLRenderer;
 	camera: THREE.PerspectiveCamera;
 	spotlight: THREE.SpotLight;
-
 	playerModel: JugadorPrimeraPersona;
 	player: THREE.Mesh;
 	controls;
 
-	world: Array<Array<Chunk>>;
+	world: World;
 	world_size = 5;
+	camera_control: TrackballControls;
+	composer: EffectComposer;
+	ssao_pass: SSAOPass;
 
 	cubeGeo: THREE.BoxGeometry;
 	cubeMesh: THREE.Mesh;
@@ -80,30 +84,28 @@ class GameScene extends THREE.Scene
 		this.player.add(this.playerModel);
 
 		this.add(this.player);
-/*		this.world = new Array<Array<Chunk>>(this.world_size);
+		this.world = new World(this);
+		const light = new THREE.AmbientLight( 0x404040 ); // soft white light
+		this.add(light);
 
-		for (let x = 0; x < this.world_size; x++)
+		this.world = new World(this);
+		this.composer = new EffectComposer(this.renderer);
+		this.ssao_pass = new SSAOPass(this, this.camera, window.innerWidth, window.innerHeight);
+
+		for (let z = 0; z < this.world_size; z++)
 		{
-			this.world[x] = new Array<Chunk>(this.world_size);
+			this.world[x][z] = new Chunk();
+			this.add(this.world[x][z].generateTerrain()
+				.translateX(x*Chunk.base)
+				.translateZ(z*Chunk.base)
+			);
+		}
 
-			for (let z = 0; z < this.world_size; z++)
-			{
-				this.world[x][z] = new Chunk();
-				this.add(this.world[x][z].generateTerrain()
-					.translateX(x*Chunk.base)
-					.translateZ(z*Chunk.base)
-				);
-			}
-		}*/
+		this.ssao_pass.kernelRadius = 5;
+		this.ssao_pass.minDistance  = 0.001;
+		this.ssao_pass.maxDistance  = 0.1;
 
-		this.cubeGeo = new THREE.BoxGeometry(1,3,1);
-		this.cubeMesh = new THREE.Mesh(this.cubeGeo, new THREE.MeshBasicMaterial({color:0xffff00}));
-
-		this.cubeMesh.position.z -= 10;
-		this.cubeMesh.position.y += 1;
-
-		this.add(this.cubeMesh);
-
+		this.composer.addPass(this.ssao_pass);
 	}
 
 	constructCamera (): void
@@ -232,6 +234,7 @@ class GameScene extends THREE.Scene
 	{
 		this.updateCamera();
 
+		// this.composer.render();
 		this.spotlight.intensity = this.properties.light_intensity;
 
 		this.axes.visible = this.properties.axes;
