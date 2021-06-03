@@ -2,12 +2,14 @@ import * as THREE from 'three';
 
 import { AdyChunks, Chunk } from './chunk';
 import ChunkBuilder from './chunk_builder';
+import Sky from './sky';
 
 export default class World
 {
 	private static scene:     THREE.Scene;
 	private static structure: Chunk[][];
 	private static builders:  ChunkBuilder[][];
+	private static sky:       Sky;
 
 	public static readonly size = 10;
 
@@ -16,6 +18,9 @@ export default class World
 		World.scene     = scene;
 		World.structure = new Array<Array<Chunk>>(World.size);
 		World.builders  = new Array<Array<ChunkBuilder>>(World.size);
+		World.sky       = new Sky(World.size * Chunk.base);
+
+		scene.add(World.sky.mesh());
 
 		for (let x = 0; x < World.size; x++)
 		{

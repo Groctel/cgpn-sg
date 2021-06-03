@@ -147,7 +147,8 @@ class GameScene extends THREE.Scene
 
 	update (): void
 	{
-		this.composer.render();
+		// this.composer.render();
+		this.renderer.render(this, this.camera);
 		this.spotlight.intensity = this.properties.light_intensity;
 		this.camera_control.update();
 

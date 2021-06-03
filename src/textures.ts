@@ -8,7 +8,7 @@ export default class Textures
 	public static readonly cols = 4;
 
 	public static readonly atlas    = Textures.loader.load("/tex/atlas.png");
-	public static readonly material = new THREE.MeshBasicMaterial({
+	public static readonly material = new THREE.MeshPhongMaterial({
 		alphaTest: 1,
 		map: Textures.atlas,
 		transparent: true

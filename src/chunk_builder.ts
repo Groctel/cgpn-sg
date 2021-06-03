@@ -78,10 +78,9 @@ export default class ChunkBuilder
 		const block_ny = this.blockAt(x,   z,   y-1);
 
 		if (
-			!block_px ||(
-				block_px.attrs.transparent && !(
-					block.attrs.groupable && (block === block_px)
-				)
+			!block_px ||
+			(block_px.attrs.transparent &&
+				!(block.attrs.groupable && (block === block_px))
 			)
 		) {
 			this.buff.push(Faces.px.clone().translate(x, y, z));
@@ -89,10 +88,9 @@ export default class ChunkBuilder
 		}
 
 		if (
-			!block_pz || (
-				block_pz.attrs.transparent && !(
-					block.attrs.groupable && (block === block_pz)
-				)
+			!block_pz ||
+			(block_pz.attrs.transparent &&
+				!(block.attrs.groupable && (block === block_pz))
 			)
 		) {
 			this.buff.push(Faces.pz.clone().translate(x, y, z));
@@ -100,10 +98,9 @@ export default class ChunkBuilder
 		}
 
 		if (
-			!block_py || (
-				block_py.attrs.transparent && !(
-					block.attrs.groupable && (block === block_py)
-				)
+			!block_py ||
+			(block_py.attrs.transparent &&
+				!(block.attrs.groupable && (block === block_py))
 			)
 		) {
 			this.buff.push(Faces.py.clone().translate(x, y, z));
@@ -111,10 +108,9 @@ export default class ChunkBuilder
 		}
 
 		if (
-			!block_nx || (
-				block_nx.attrs.transparent && !(
-					block.attrs.groupable && (block === block_nx)
-				)
+			!block_nx ||
+			(block_nx.attrs.transparent &&
+				!(block.attrs.groupable && (block === block_nx))
 			)
 		) {
 			this.buff.push(Faces.nx.clone().translate(x, y, z));
@@ -122,10 +118,9 @@ export default class ChunkBuilder
 		}
 
 		if (
-			!block_nz || (
-				block_nz.attrs.transparent && !(
-					block.attrs.groupable && (block === block_nz)
-				)
+			!block_nz ||
+			(block_nz.attrs.transparent &&
+				!(block.attrs.groupable && (block === block_nz))
 			)
 		) {
 			this.buff.push(Faces.nz.clone().translate(x, y, z));
@@ -133,10 +128,9 @@ export default class ChunkBuilder
 		}
 
 		if (
-			!block_ny || (
-				block_ny.attrs.transparent && !(
-					block.attrs.groupable && (block === block_ny)
-				)
+			!block_ny ||
+			(block_ny.attrs.transparent &&
+				!(block.attrs.groupable && (block === block_ny))
 			)
 		) {
 			this.buff.push(Faces.ny.clone().translate(x, y, z));
@@ -175,8 +169,8 @@ export default class ChunkBuilder
 
 	public generateMesh (): void
 	{
-		this.buff = new Array<THREE.BufferGeometry>();
-		this.uv   = new Array<Array<number>>();
+		this.buff  = new Array<THREE.BufferGeometry>();
+		this.uv    = new Array<Array<number>>();
 
 		for (let x = 0; x < Chunk.base; x++)
 			for (let z = 0; z < Chunk.base; z++)
@@ -195,8 +189,8 @@ export default class ChunkBuilder
 			new Float32Array(this.uv.flat()), 2
 		));
 
-		this.buff.length = 0;
-		this.uv.length   = 0;
+		this.buff.length  = 0;
+		this.uv.length    = 0;
 
 		this.mesh = new THREE.Mesh(geometry, Textures.material);
 	}
