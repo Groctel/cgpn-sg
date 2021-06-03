@@ -1,6 +1,4 @@
 import * as THREE from 'three';
-import * as TWEEN from '@tweenjs/tween.js';
-
 
 export class JugadorPrimeraPersona extends THREE.Object3D {
 	private materialUp = new THREE.MeshNormalMaterial();
@@ -11,8 +9,6 @@ export class JugadorPrimeraPersona extends THREE.Object3D {
 	private brazoAparte: THREE.Object3D;
 	private brazoDch: THREE.Object3D;
 	private cubo: THREE.Mesh;
-
-	private tweenUp
 
 	constructor(){
 		super();
@@ -46,7 +42,6 @@ export class JugadorPrimeraPersona extends THREE.Object3D {
 		this.character.add(this.cubo);
 		this.add(this.character);
 
-		//Animaciones
 	}
 
 }
