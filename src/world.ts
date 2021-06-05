@@ -58,6 +58,7 @@ export default class World
 		);
 
 		World.worldMesh.push(World.builders[x][z].chunkMesh());
+
 	}
 
 	private generateStructure (x: number, z: number): void
@@ -68,6 +69,23 @@ export default class World
 	public returnMeshes(): THREE.Object3D[]
 	{
 		return World.worldMesh;
+	}
+
+	public returnMeshesRelativePosition(pos_x: number, pos_z: number): THREE.Object3D[]
+	{
+		const relativeMeshes = new Array<THREE.Object3D>();
+
+		for(let x = 0; x < World.worldMesh.length; x++){
+			let distance = 0;
+			distance += Math.abs(World.worldMesh[x].position.x - pos_x);
+			distance += Math.abs(World.worldMesh[x].position.z - pos_z);
+			if(distance <= 32){
+				relativeMeshes.push(World.worldMesh[x]);
+			}
+		}
+
+		return relativeMeshes;
+
 	}
 
 }

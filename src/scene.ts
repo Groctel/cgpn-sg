@@ -1,5 +1,4 @@
 import $ from 'jquery';
-import * as CANNON from 'cannon';
 import * as THREE from 'three';
 import { GUI } from 'dat-gui';
 import {PointerLockControls} from 'three/examples/jsm/controls/PointerLockControls.js';
@@ -55,6 +54,7 @@ class GameScene extends THREE.Scene
 	direction: THREE.Vector3;
 
 	speed: number;
+	can_jump = false;
 
 	constructor (canvas: string)
 	{
@@ -78,15 +78,10 @@ class GameScene extends THREE.Scene
 		this.constructLights();
 		this.constructCamera();
 
-		this.axes = new THREE.AxesHelper (50);
-
-		this.add(this.axes);
-		this.add(new THREE.GridHelper(100,100));
-
 		this.controls = new PointerLockControls(this.camera, this.renderer.domElement);
 
 		this.raycasterY = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0,1,0), 0, 1);
-		this.raycasterYNeg = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0,-1,0), 0, 1);
+		this.raycasterYNeg = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0,-1,0), 0, 1.8);
 
 		this.playerModel.position.set(
 			this.camera.position.x + 1.5,
@@ -113,16 +108,17 @@ class GameScene extends THREE.Scene
 		this.composer.addPass(this.ssao_pass);
 
 		this.worldMeshes = new Array<THREE.Object3D>();
-		this.worldMeshes = this.world.returnMeshes();
+		this.recalculate();
 
 		this.direction = new THREE.Vector3();
 		this.movingForward = false;
 		this.movingLeft = false;
 		this.movingRight = false;
 		this.movingBackward = false;
-		this.speed = 0.5;
+		this.speed = 0.15;
 
-		this.camera.position.y += 80;
+		this.camera.position.y += 20;
+
 
 	}
 
@@ -222,6 +218,10 @@ class GameScene extends THREE.Scene
 			this.controls.lock();
 		}
 
+		if(keyC == " " && this.can_jump){
+			this.controls.getObject().position.y += 1.5;
+		}
+
 
 		this.update();
 	}
@@ -249,6 +249,7 @@ class GameScene extends THREE.Scene
 			this.movingRight = false;
 		}
 
+
 		this.update();
 	}
 
@@ -271,13 +272,13 @@ class GameScene extends THREE.Scene
 
 	gravity(): void
 	{
-
-		let noObjectForward = true;
-		let noObjectLeft = true;
-		let noObjectRight = true;
-		let noObjectBackward = true;
-
 		const velocity = new THREE.Vector3(0,0,0);
+		let StoppedF = 1;
+		let StoppedL = 1;
+		let StoppedB = 1;
+		let StoppedR = 1;
+
+		this.recalculate();
 
 		const directionVectorZ = new THREE.Vector3();
 		this.controls.getDirection(directionVectorZ);
@@ -291,14 +292,15 @@ class GameScene extends THREE.Scene
 
 		if(this.movingForward){
 
-			this.raycasterZ = new THREE.Raycaster(new THREE.Vector3(), directionVectorZ, 0, 1);
+			this.raycasterZ = new THREE.Raycaster(new THREE.Vector3(), directionVectorZ, 0, 1.5);
 			this.raycasterZ.ray.origin.copy(this.controls.getObject().position);
-			this.raycasterZ.ray.origin.y -= 1;
+			this.raycasterZ.ray.origin.y -= 1.8;
+			this.raycasterZ.ray.origin.z -= 1.35;
 
 			const intersectionZ = this.raycasterZ.intersectObjects(this.worldMeshes);
 
 			if(intersectionZ.length > 0){
-				noObjectForward = false;
+				StoppedF = 0;
 			}
 
 		}
@@ -307,14 +309,15 @@ class GameScene extends THREE.Scene
 
 			directionVectorZ.applyAxisAngle(new THREE.Vector3(0,1,0), Math.PI);
 
-			this.raycasterZ = new THREE.Raycaster(new THREE.Vector3(), directionVectorZ, 0, 0.5);
+			this.raycasterZ = new THREE.Raycaster(new THREE.Vector3(), directionVectorZ, 0, 1.5);
 			this.raycasterZ.ray.origin.copy(this.controls.getObject().position);
-			this.raycasterZ.ray.origin.y -= 1;
+			this.raycasterZ.ray.origin.y -= 1.8;
+			this.raycasterZ.ray.origin.z += 1.35;
 
 			const intersectionZ = this.raycasterZ.intersectObjects(this.worldMeshes);
 
 			if(intersectionZ.length > 0){
-				noObjectBackward = false;
+				StoppedB = 0;
 			}
 
 		}
@@ -322,14 +325,15 @@ class GameScene extends THREE.Scene
 
 		if(this.movingRight){
 
-			this.raycasterX = new THREE.Raycaster(new THREE.Vector3(), directionVectorX, 0, 0.5);
+			this.raycasterX = new THREE.Raycaster(new THREE.Vector3(), directionVectorX, 0, 1.5);
 			this.raycasterX.ray.origin.copy(this.controls.getObject().position);
-			this.raycasterX.ray.origin.y -= 1;
+			this.raycasterX.ray.origin.y -= 1.85;
+			this.raycasterX.ray.origin.x -= 1.35;
 
 			const intersectionX = this.raycasterX.intersectObjects(this.worldMeshes);
 
 			if(intersectionX.length > 0){
-				noObjectRight = false;
+				StoppedR = 0;
 			}
 
 		}
@@ -338,14 +342,15 @@ class GameScene extends THREE.Scene
 
 			directionVectorX.applyAxisAngle(new THREE.Vector3(0,1,0), Math.PI);
 
-			this.raycasterX = new THREE.Raycaster(new THREE.Vector3(), directionVectorX, 0, 1);
+			this.raycasterX = new THREE.Raycaster(new THREE.Vector3(), directionVectorX, 0, 1.5);
 			this.raycasterX.ray.origin.copy(this.controls.getObject().position);
-			this.raycasterX.ray.origin.y -= 1;
+			this.raycasterX.ray.origin.y -= 1.8;
+			this.raycasterX.ray.origin.x += 1.35;
 
-			const intersectionX = this.raycasterX.intersectObjects(this.worldMeshes);
+			const intersectionX = this.raycasterX.intersectObjects(this.worldMeshes, false);
 
 			if(intersectionX.length > 0){
-				noObjectLeft = false;
+				StoppedL = 0;
 			}
 
 		}
@@ -353,39 +358,48 @@ class GameScene extends THREE.Scene
 		//se mueve o no.
 
 		this.raycasterYNeg.ray.origin.copy(this.controls.getObject().position);
-		this.raycasterYNeg.ray.origin.y -= 1;
-		this.raycasterYNeg.ray.origin.z -= 0.75;
+		this.raycasterYNeg.ray.origin.y -= 1.8;
 
-		const intersectionFeetY = this.raycasterYNeg.intersectObjects(this.worldMeshes);
 
-		if(intersectionFeetY.length > 0){
+		const intersectionFeetY = this.raycasterYNeg.intersectObjects(this.worldMeshes).length;
 
+		if(intersectionFeetY){
+			this.can_jump = true;
 		}
 		else{
 			this.controls.getObject().position.y -= 1;
+			this.can_jump = false;
 		}
 
 		//Aquí se realiza el cálculo para el movimiento
 
-		this.direction.z = Number(this.movingForward)*Number(noObjectForward) - Number(this.movingBackward)*Number(noObjectBackward);
-		this.direction.x = Number(this.movingRight)*Number(noObjectRight) - Number(this.movingLeft)*Number(noObjectLeft);
+		this.direction.z = Number(this.movingForward)*StoppedF - Number(this.movingBackward)*StoppedB;
+		this.direction.x = Number(this.movingRight)*StoppedR - Number(this.movingLeft)*StoppedL;
 		this.direction.normalize();
 
 		if(this.movingForward || this.movingBackward){
-			velocity.z = this.direction.z * this.speed;
+			velocity.z -= this.direction.z * this.speed;
 		}
 		if(this.movingLeft || this.movingRight){
-			velocity.x = this.direction.x * this.speed;
+			velocity.x -= this.direction.x * this.speed;
 		}
 
-		this.controls.moveForward(velocity.z);
-		this.controls.moveRight(velocity.x);
+		this.controls.moveForward(-velocity.z);
+		this.controls.moveRight(- velocity.x);
 
+		if(this.controls.getObject().position.y < -10){
+			this.controls.getObject().position.y = 80;
+		}
+
+	}
+
+	recalculate(): void
+	{
+		this.worldMeshes = this.world.returnMeshesRelativePosition(this.controls.getObject().position.x, this.controls.getObject().position.z);
 	}
 
 	update (): void
 	{
-
 
 		// this.composer.render();
 		this.gravity();
@@ -393,11 +407,11 @@ class GameScene extends THREE.Scene
 
 		this.updateCamera();
 
-		this.axes.visible = this.properties.axes;
 		this.renderer.render(this, this.camera);
 
 		requestAnimationFrame(() => this.update());
 	}
+
 }
 
 export { GameScene };
