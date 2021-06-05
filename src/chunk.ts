@@ -49,7 +49,7 @@ export class Chunk
 			{
 				this.structure[x][z] = new Array<Block>(Chunk.height);
 				this.generateTerrain(x, z, world_size);
-				this.generatePlants(x, z, world_size);
+				//this.generatePlants(x, z, world_size);
 			}
 		}
 

@@ -13,7 +13,7 @@
   },
   "keywords": [],
   "author": "Juan Mota Martínez, Atanasio José Rubio Gil",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "bugs": {
     "url": "https://github.com/Groctel/cgpn-sg/issues"
   },
@@ -36,20 +36,15 @@
     "webpack-dev-server": "latest"
   },
   "dependencies": {
-<<<<<<< HEAD
-    "@types/cannon": "^0.1.5",
-    "cannon": "^0.6.2",
-    "dat-gui": "latest",
-    "jquery": "^3.6.0",
-    "three": "latest",
-    "three-pointerlock": "^0.0.2"
-=======
     "@types/noisejs": "^0.0.28",
+    "dat-gui": "latest",
+    "three": "latest",
+    "three-pointerlock": "^0.0.2",
+    "cannon": "^0.6.2",
     "dat-gui": "latest",
     "jquery": "latest",
     "noisejs": "^2.1.0",
     "simplex-noise": "^2.4.0",
     "three": "latest"
->>>>>>> main
   }
 }

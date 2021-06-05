@@ -10,6 +10,7 @@ export default class World
 	private static structure: Chunk[][];
 	private static builders:  ChunkBuilder[][];
 	private static sky:       Sky;
+	private static worldMesh: THREE.Object3D[];
 
 	public static readonly size = 10;
 
@@ -19,6 +20,7 @@ export default class World
 		World.structure = new Array<Array<Chunk>>(World.size);
 		World.builders  = new Array<Array<ChunkBuilder>>(World.size);
 		World.sky       = new Sky(World.size * Chunk.base);
+		World.worldMesh = new Array<THREE.Object3D>();
 
 		scene.add(World.sky.mesh());
 
@@ -54,10 +56,18 @@ export default class World
 			.translateX(x * Chunk.base - (Chunk.base * World.size) / 2)
 			.translateZ(z * Chunk.base - (Chunk.base * World.size) / 2)
 		);
+
+		World.worldMesh.push(World.builders[x][z].chunkMesh());
 	}
 
 	private generateStructure (x: number, z: number): void
 	{
 		World.structure[x][z] = new Chunk(x, z, World.size);
 	}
+
+	public returnMeshes(): THREE.Object3D[]
+	{
+		return World.worldMesh;
+	}
+
 }

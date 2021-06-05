@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import * as CANNON from 'cannon';
 import * as THREE from 'three';
 import { GUI } from 'dat-gui';
 import {PointerLockControls} from 'three/examples/jsm/controls/PointerLockControls.js';
@@ -28,21 +29,32 @@ class GameScene extends THREE.Scene
 	spotlight: THREE.SpotLight;
 	playerModel: JugadorPrimeraPersona;
 	player: THREE.Mesh;
-	controls;
+	controls: PointerLockControls;
 
 	world: World;
 	world_size = 5;
+	worldMeshes: THREE.Object3D[];
 	camera_control: TrackballControls;
 	composer: EffectComposer;
 	ssao_pass: SSAOPass;
 
-	cubeGeo: THREE.BoxGeometry;
-	cubeMesh: THREE.Mesh;
-
 	raycaster: THREE.Raycaster;
 
-	timeStep = 1/60;
-	speed = 1.5;
+	raycasterY: THREE.Raycaster;
+	raycasterYNeg: THREE.Raycaster;
+
+	raycasterX: THREE.Raycaster;
+
+	raycasterZ: THREE.Raycaster;
+
+	movingForward: boolean;
+	movingLeft: boolean;
+	movingBackward: boolean;
+	movingRight: boolean;
+
+	direction: THREE.Vector3;
+
+	speed: number;
 
 	constructor (canvas: string)
 	{
@@ -72,11 +84,13 @@ class GameScene extends THREE.Scene
 		this.add(new THREE.GridHelper(100,100));
 
 		this.controls = new PointerLockControls(this.camera, this.renderer.domElement);
-		this.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0,0,1), 0, 1.5);
+
+		this.raycasterY = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0,1,0), 0, 1);
+		this.raycasterYNeg = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0,-1,0), 0, 1);
 
 		this.playerModel.position.set(
 			this.camera.position.x + 1.5,
-			this.camera.position.y - 0.5,
+			this.camera.position.y - 1.2,
 			this.camera.position.z - 1.75
 		);
 
@@ -84,7 +98,7 @@ class GameScene extends THREE.Scene
 		this.player.add(this.playerModel);
 
 		this.add(this.player);
-		this.world = new World(this);
+
 		const light = new THREE.AmbientLight( 0x404040 ); // soft white light
 		this.add(light);
 
@@ -92,20 +106,24 @@ class GameScene extends THREE.Scene
 		this.composer = new EffectComposer(this.renderer);
 		this.ssao_pass = new SSAOPass(this, this.camera, window.innerWidth, window.innerHeight);
 
-		for (let z = 0; z < this.world_size; z++)
-		{
-			this.world[x][z] = new Chunk();
-			this.add(this.world[x][z].generateTerrain()
-				.translateX(x*Chunk.base)
-				.translateZ(z*Chunk.base)
-			);
-		}
-
 		this.ssao_pass.kernelRadius = 5;
 		this.ssao_pass.minDistance  = 0.001;
 		this.ssao_pass.maxDistance  = 0.1;
 
 		this.composer.addPass(this.ssao_pass);
+
+		this.worldMeshes = new Array<THREE.Object3D>();
+		this.worldMeshes = this.world.returnMeshes();
+
+		this.direction = new THREE.Vector3();
+		this.movingForward = false;
+		this.movingLeft = false;
+		this.movingRight = false;
+		this.movingBackward = false;
+		this.speed = 0.5;
+
+		this.camera.position.y += 80;
+
 	}
 
 	constructCamera (): void
@@ -117,7 +135,7 @@ class GameScene extends THREE.Scene
 			1000
 		);
 
-		this.camera.position.set(0, 1.5, 0);
+		this.camera.position.set(0, 1.8, 0);
 
 		this.add(this.camera);
 
@@ -180,41 +198,62 @@ class GameScene extends THREE.Scene
 	onKeyDown(event): void
 	{
 
-		this.raycaster.ray.origin.copy(this.controls.getObject().position);
-		this.raycaster.ray.origin.z -= 1.5;
+		const key = event.wich || event.keyCode;
+		const keyC = String.fromCharCode(key);
 
-		const intersection = this.raycaster.intersectObject(this.cubeMesh);
-
-		var key = event.wich || event.keyCode;
-		var keyC = String.fromCharCode(key);
-
-		//El movimiento se efectua sobre la esfera para las físicas
-		//Es necesario que se relaciones con la rotación de la cámara para que avanzar hacia adelante
 		//con la w siempre sea el adelante de la cámara
-		if(keyC == "W" && !(intersection.length > 0)){
-			this.controls.moveForward(this.speed);
+		if(keyC == "W" ){
+			this.movingForward = true;
 		}
 
 		if(keyC == "A"){
-			this.controls.moveRight(-this.speed);
+			this.movingLeft = true;
 		}
 
 		if(keyC == "S"){
-			this.controls.moveForward(-this.speed);
+			this.movingBackward = true;
 		}
 
 		if(keyC == "D"){
-			this.controls.moveRight(this.speed);
+			this.movingRight = true;
 		}
 
 		if(keyC == "Q"){
 			this.controls.lock();
 		}
 
+
 		this.update();
 	}
 
-	updateCamera(): void{
+	onKeyUp(event): void
+	{
+
+		const key = event.wich || event.keyCode;
+		const keyC = String.fromCharCode(key);
+
+		//con la w siempre sea el adelante de la cámara
+		if(keyC == "W" ){
+			this.movingForward = false;
+		}
+
+		if(keyC == "A"){
+			this.movingLeft = false;
+		}
+
+		if(keyC == "S"){
+			this.movingBackward = false;
+		}
+
+		if(keyC == "D"){
+			this.movingRight = false;
+		}
+
+		this.update();
+	}
+
+	updateCamera(): void
+	{
 
 		this.player.position.set(
 			this.camera.position.x,
@@ -230,18 +269,134 @@ class GameScene extends THREE.Scene
 
 	}
 
+	gravity(): void
+	{
+
+		let noObjectForward = true;
+		let noObjectLeft = true;
+		let noObjectRight = true;
+		let noObjectBackward = true;
+
+		const velocity = new THREE.Vector3(0,0,0);
+
+		const directionVectorZ = new THREE.Vector3();
+		this.controls.getDirection(directionVectorZ);
+		directionVectorZ.y = 0;
+
+		const directionVectorX = directionVectorZ;
+
+		directionVectorX.applyAxisAngle(new THREE.Vector3(0,1,0), -90*(Math.PI/180));
+
+		//Raycaster Para Movimiento en el eje Z de la cámara
+
+		if(this.movingForward){
+
+			this.raycasterZ = new THREE.Raycaster(new THREE.Vector3(), directionVectorZ, 0, 1);
+			this.raycasterZ.ray.origin.copy(this.controls.getObject().position);
+			this.raycasterZ.ray.origin.y -= 1;
+
+			const intersectionZ = this.raycasterZ.intersectObjects(this.worldMeshes);
+
+			if(intersectionZ.length > 0){
+				noObjectForward = false;
+			}
+
+		}
+
+		if(this.movingBackward){
+
+			directionVectorZ.applyAxisAngle(new THREE.Vector3(0,1,0), Math.PI);
+
+			this.raycasterZ = new THREE.Raycaster(new THREE.Vector3(), directionVectorZ, 0, 0.5);
+			this.raycasterZ.ray.origin.copy(this.controls.getObject().position);
+			this.raycasterZ.ray.origin.y -= 1;
+
+			const intersectionZ = this.raycasterZ.intersectObjects(this.worldMeshes);
+
+			if(intersectionZ.length > 0){
+				noObjectBackward = false;
+			}
+
+		}
+		//Raycaster para el movimiento en el eje X de la cámara
+
+		if(this.movingRight){
+
+			this.raycasterX = new THREE.Raycaster(new THREE.Vector3(), directionVectorX, 0, 0.5);
+			this.raycasterX.ray.origin.copy(this.controls.getObject().position);
+			this.raycasterX.ray.origin.y -= 1;
+
+			const intersectionX = this.raycasterX.intersectObjects(this.worldMeshes);
+
+			if(intersectionX.length > 0){
+				noObjectRight = false;
+			}
+
+		}
+
+		if(this.movingLeft){
+
+			directionVectorX.applyAxisAngle(new THREE.Vector3(0,1,0), Math.PI);
+
+			this.raycasterX = new THREE.Raycaster(new THREE.Vector3(), directionVectorX, 0, 1);
+			this.raycasterX.ray.origin.copy(this.controls.getObject().position);
+			this.raycasterX.ray.origin.y -= 1;
+
+			const intersectionX = this.raycasterX.intersectObjects(this.worldMeshes);
+
+			if(intersectionX.length > 0){
+				noObjectLeft = false;
+			}
+
+		}
+		//El raycaster de la gravedad siempre tiene que estar activado sin importar si el jugador
+		//se mueve o no.
+
+		this.raycasterYNeg.ray.origin.copy(this.controls.getObject().position);
+		this.raycasterYNeg.ray.origin.y -= 1;
+		this.raycasterYNeg.ray.origin.z -= 0.75;
+
+		const intersectionFeetY = this.raycasterYNeg.intersectObjects(this.worldMeshes);
+
+		if(intersectionFeetY.length > 0){
+
+		}
+		else{
+			this.controls.getObject().position.y -= 1;
+		}
+
+		//Aquí se realiza el cálculo para el movimiento
+
+		this.direction.z = Number(this.movingForward)*Number(noObjectForward) - Number(this.movingBackward)*Number(noObjectBackward);
+		this.direction.x = Number(this.movingRight)*Number(noObjectRight) - Number(this.movingLeft)*Number(noObjectLeft);
+		this.direction.normalize();
+
+		if(this.movingForward || this.movingBackward){
+			velocity.z = this.direction.z * this.speed;
+		}
+		if(this.movingLeft || this.movingRight){
+			velocity.x = this.direction.x * this.speed;
+		}
+
+		this.controls.moveForward(velocity.z);
+		this.controls.moveRight(velocity.x);
+
+	}
+
 	update (): void
 	{
-		this.updateCamera();
+
 
 		// this.composer.render();
+		this.gravity();
 		this.spotlight.intensity = this.properties.light_intensity;
 
+		this.updateCamera();
+
 		this.axes.visible = this.properties.axes;
+		this.renderer.render(this, this.camera);
 
 		requestAnimationFrame(() => this.update());
-
-		this.renderer.render(this, this.camera);
 	}
 }
 

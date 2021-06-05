@@ -26,7 +26,7 @@ export class JugadorPrimeraPersona extends THREE.Object3D {
 		this.brazoAparte.add(this.brazoDch);
 		this.brazoAparte.rotation.x = 70*(Math.PI/180);
 
-		//Creamos EL cubo que señala el objecto que sujeta el jugador
+		//Creamos El cubo que señala el objeto que sujeta el jugador
 		this.cubo = new THREE.Mesh(this.geometria,this.materialUp);
 		this.cubo.scale.x *=0.75;
 		this.cubo.scale.y *=0.75;
@@ -43,6 +43,5 @@ export class JugadorPrimeraPersona extends THREE.Object3D {
 		this.add(this.character);
 
 	}
-
 }
 
