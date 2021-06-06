@@ -88,9 +88,10 @@ export default class World
 		chunkX = ~~((chunkX + (Chunk.base*World.size) /2) / Chunk.base);
 		chunkZ = ~~((chunkZ + (Chunk.base*World.size) /2) / Chunk.base);
 
-		World.worldMesh.forEach((value, index)=>{
-			if (value == World.builders[chunkX][chunkZ].chunkMesh()) delete World.worldMesh[index];
-		});
+		World.scene.remove(World.builders[chunkX][chunkZ].chunkMesh());
+
+		const index = World.worldMesh.indexOf(World.builders[chunkX][chunkZ].chunkMesh());
+		World.worldMesh.splice(index,1);
 
 		World.structure[chunkX][chunkZ].positionBlock(Math.floor((blockX+chunkX*Chunk.base)%Chunk.base), Math.floor((blockZ+chunkZ*Chunk.base)%Chunk.base), blockY, block);
 

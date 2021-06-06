@@ -54,7 +54,7 @@ export default class GameScene extends THREE.Scene
 		switch(event.button)
 		{
 		case 0:
-			this.putBlock(Blocks.oak_wood);
+			this.putBlock(Blocks.air);
 			break;
 
 		case 2:

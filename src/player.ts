@@ -32,6 +32,10 @@ export default class Player
 	private static ady_chunks: AdyChunks;
 	private static chunk: Chunk;
 
+	private static grounded = false;
+	private static jumping = false;
+	private static prev_time = new Date().getTime();
+
 	public static camera = new THREE.PerspectiveCamera(
 		45,
 		window.innerWidth / window.innerHeight,
@@ -134,6 +138,7 @@ export default class Player
 
 	private static updatePositionAgainstCollisions (): void
 	{
+		const time = new Date().getTime();
 		Player.step_fwd = Player.look.clone()
 			.multiplyScalar(Player.front_speed);
 
@@ -144,39 +149,61 @@ export default class Player
 		Player.next_step.addVectors(Player.step_fwd, Player.step_side);
 		Player.next_block.addVectors(Player.curr_block, Player.next_step);
 
-		if (!Player.willCollideAt(
-			~~Player.curr_block.x,
-			~~Player.curr_block.z,
-			~~(Player.position.y-1.3)
-		)) {
-			if (Player.fall_speed > 0 && Player.fall_speed <= 1.5)
-				Player.fall_speed += World.gravity * Player.fall_speed;
-			else
-				Player.fall_speed = 0.15;
-		}
-		else
-		{
-			Player.fall_speed = 0;
+		if(Player.jumping){
+			const delta = ( time - Player.prev_time ) / 1000;
 
-			if (Player.willCollideAt(
+			Player.fall_speed -= 9.8 * 30 * delta;
+
+			if(Player.fall_speed < 0){
+				Player.jumping = false;
+			}
+
+		}
+		else{
+			if (!Player.willCollideAt(
 				~~Player.curr_block.x,
 				~~Player.curr_block.z,
+				~~(Player.position.y-1.3)
+			)) {
+				if (Player.fall_speed > 0 && Player.fall_speed <= 1.5)
+					Player.fall_speed += World.gravity * Player.fall_speed;
+				else
+					Player.fall_speed = 0.15;
+
+				this.grounded = false;
+			}
+			else
+			{
+				Player.fall_speed = 0;
+				this.grounded = true;
+
+				if (Player.willCollideAt(
+					~~Player.curr_block.x,
+					~~Player.curr_block.z,
+					~~Player.position.y-1
+				)) {
+					Player.position.y += 1;
+				}
+			}
+
+			if (Player.willCollideAt(
+				~~Player.next_block.x,
+				~~Player.next_block.z,
 				~~Player.position.y-1
 			)) {
-				Player.position.y += 1;
+				Player.next_step.setScalar(0);
 			}
 		}
 
-		if (Player.willCollideAt(
-			~~Player.next_block.x,
-			~~Player.next_block.z,
-			~~Player.position.y-1
-		)) {
-			Player.next_step.setScalar(0);
-		}
+		Player.prev_time = time;
 
-		Player.next_step.y = -Player.fall_speed;
+		if(this.jumping)
+			Player.next_step.y = Player.fall_speed;
+		else
+			Player.next_step.y = -Player.fall_speed;
+
 		Player.position.add(Player.next_step);
+
 	}
 
 	private static updateWorldPosition (): void
@@ -206,6 +233,8 @@ export default class Player
 	public static moveBackwards (): void { Player.front_speed = -Player.speed; }
 	public static moveLeft      (): void { Player.right_speed =  Player.speed; }
 	public static moveRight     (): void { Player.right_speed = -Player.speed; }
+	public static jump			 (): void { Player.jumping = true; Player.fall_speed = 10; }
+	public static isGrounded	 (): boolean {return this.grounded;}
 
 	public static stopMovingFront    (): void { Player.front_speed = 0; }
 	public static stopMovingSide     (): void { Player.right_speed = 0; }

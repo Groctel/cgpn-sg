@@ -91,11 +91,7 @@ export class Chunk
 			(this.pos_x * Chunk.base + x) / (world_size * Chunk.base / 5) + 0.1,
 			(this.pos_z * Chunk.base + z) / (world_size * Chunk.base / 5) + 0.1
 		);
-/*
-		const bedrock_height = Math.ceil(3);
-		const stone_height   = Math.ceil(5);
-		const terrain_height = Math.ceil(10);
-		*/
+
 		const bedrock_height = Math.ceil(Math.random() * 3);
 		const stone_height   = Math.ceil(Math.abs(perlin * 10) + 5);
 		const terrain_height = Math.ceil(Math.abs(perlin * 15) + 10);
@@ -143,6 +139,9 @@ export class Chunk
 
 		if(type == Blocks.air){
 			y -= 1;
+			this.structure[x][z][y].attrs.transparent = true;
+			this.structure[x][z][y].attrs.empty = true;
+			this.structure[x][z][y].attrs.solid = false;
 		}
 
 		this.structure[x][z][y] = type;
