@@ -6,6 +6,7 @@ import {JugadorPrimeraPersona} from '../Modelos/JugadorPrimeraPersona';
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
 import { SSAOPass } from 'three/examples/jsm/postprocessing/SSAOPass';
+import { Block, Blocks} from './blocks';
 
 import World from './world';
 
@@ -52,6 +53,8 @@ class GameScene extends THREE.Scene
 	movingRight: boolean;
 
 	direction: THREE.Vector3;
+
+	selectedBlock: Block;
 
 	speed: number;
 	can_jump = false;
@@ -118,6 +121,8 @@ class GameScene extends THREE.Scene
 		this.speed = 0.15;
 
 		this.camera.position.y += 20;
+
+		this.selectedBlock = Blocks.bedrock;
 
 
 	}
@@ -193,11 +198,22 @@ class GameScene extends THREE.Scene
 	onDocumentMouseDown(event): void
 	{
 
-		this.putBlock();
+		switch(event.wich){
+
+			case 1:
+				this.putBlock(Blocks.air);
+				break;
+
+			case 3:
+				this.putBlock(this.selectedBlock);
+				break;
+
+		}
+
 
 	}
 
-	putBlock(): void
+	putBlock(block: Block): void
 	{
 		const directionVector = new THREE.Vector3();
 		this.controls.getDirection(directionVector);
@@ -209,14 +225,15 @@ class GameScene extends THREE.Scene
 
 		if(intersection.length >0){
 			const x = intersection[0].point.x;
+			const y = Math.round(intersection[0].point.y);
 			const z = intersection[0].point.z;
 
 			const chunkX = intersection[0].object.position.x;
 			const chunkZ = intersection[0].object.position.z;
 
-			console.log(intersection[0].object.position);
+			console.log(y);
 
-			this.world.putBlock(chunkX, chunkZ, x, z);
+			this.world.putBlock(chunkX, chunkZ, x, y, z, block);
 
 		}
 

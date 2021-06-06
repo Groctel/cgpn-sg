@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 
 import { AdyChunks, Chunk } from './chunk';
+import { Block } from './blocks';
 import ChunkBuilder from './chunk_builder';
 import Sky from './sky';
 
@@ -72,7 +73,7 @@ export default class World
 		return World.worldMesh;
 	}
 
-	public putBlock(chunkX: number, chunkZ: number, blockX: number, blockZ: number ): void
+	public putBlock(chunkX: number, chunkZ: number, blockX: number, blockY: number, blockZ: number, block: Block ): void
 	{
 		chunkX = ~~((chunkX + (Chunk.base*World.size) /2) / Chunk.base);
 		chunkZ = ~~((chunkZ + (Chunk.base*World.size) /2) / Chunk.base);
@@ -81,8 +82,7 @@ export default class World
 			if (value == World.builders[chunkX][chunkZ].chunkMesh()) delete World.worldMesh[index];
 		});
 
-		World.structure[chunkX][chunkZ].positionBlock(Math.round((blockX+chunkX*Chunk.base)%Chunk.base), Math.round((blockZ+chunkZ*Chunk.base)%Chunk.base));
-
+		World.structure[chunkX][chunkZ].positionBlock(Math.round((blockX+chunkX*Chunk.base)%Chunk.base), Math.round((blockZ+chunkZ*Chunk.base)%Chunk.base), blockY, block);
 
 		this.buildStructure(chunkX, chunkZ);
 

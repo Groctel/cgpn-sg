@@ -138,10 +138,13 @@ export class Chunk
 		return this.structure;
 	}
 
-	public positionBlock(x: number, z: number): void
+	public positionBlock(x: number, z: number, y: number, type: Block): void
 	{
-		const y = this.findHighestBlock(x, z)+1;
-		this.structure[x][z][y] = Blocks.bedrock;
+		if(type == Blocks.air){
+			y -= 1;
+		}
+
+		this.structure[x][z][y] = type;
 
 	}
 }
