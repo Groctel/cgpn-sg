@@ -50,6 +50,7 @@ export default class World
 			x-1 >= 0         && z+1 < World.size ? World.structure[x-1][z+1] : null,
 			x-1 >= 0         && z-1 >= 0         ? World.structure[x-1][z-1] : null
 		);
+
 		World.builders[x][z] = new ChunkBuilder(World.structure[x][z], ady_chunks);
 
 		World.scene.add(World.builders[x][z].chunkMesh()
@@ -69,6 +70,22 @@ export default class World
 	public returnMeshes(): THREE.Object3D[]
 	{
 		return World.worldMesh;
+	}
+
+	public putBlock(chunkX: number, chunkZ: number, blockX: number, blockZ: number ): void
+	{
+		chunkX = ~~((chunkX + (Chunk.base*World.size) /2) / Chunk.base);
+		chunkZ = ~~((chunkZ + (Chunk.base*World.size) /2) / Chunk.base);
+
+		World.worldMesh.forEach((value, index)=>{
+			if (value == World.builders[chunkX][chunkZ].chunkMesh()) delete World.worldMesh[index];
+		});
+
+		World.structure[chunkX][chunkZ].positionBlock(Math.round((blockX+chunkX*Chunk.base)%Chunk.base), Math.round((blockZ+chunkZ*Chunk.base)%Chunk.base));
+
+
+		this.buildStructure(chunkX, chunkZ);
+
 	}
 
 	public returnMeshesRelativePosition(pos_x: number, pos_z: number): THREE.Object3D[]

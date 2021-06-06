@@ -80,7 +80,7 @@ class GameScene extends THREE.Scene
 
 		this.controls = new PointerLockControls(this.camera, this.renderer.domElement);
 
-		this.raycasterY = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0,1,0), 0, 1);
+		this.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0,1,0), 0, 16);
 		this.raycasterYNeg = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0,-1,0), 0, 1.8);
 
 		this.playerModel.position.set(
@@ -190,6 +190,38 @@ class GameScene extends THREE.Scene
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
 	}
 
+	onDocumentMouseDown(event): void
+	{
+
+		this.putBlock();
+
+	}
+
+	putBlock(): void
+	{
+		const directionVector = new THREE.Vector3();
+		this.controls.getDirection(directionVector);
+
+		this.raycaster = new THREE.Raycaster(new THREE.Vector3(), directionVector, 0, 16);
+		this.raycaster.ray.origin.copy(this.controls.getObject().position);
+
+		const intersection = this.raycaster.intersectObjects(this.worldMeshes);
+
+		if(intersection.length >0){
+			const x = intersection[0].point.x;
+			const z = intersection[0].point.z;
+
+			const chunkX = intersection[0].object.position.x;
+			const chunkZ = intersection[0].object.position.z;
+
+			console.log(intersection[0].object.position);
+
+			this.world.putBlock(chunkX, chunkZ, x, z);
+
+		}
+
+	}
+
 	//Función para la detección de teclas pulsadas
 	onKeyDown(event): void
 	{
@@ -270,8 +302,10 @@ class GameScene extends THREE.Scene
 
 	}
 
+
 	gravity(): void
 	{
+		/*
 		const velocity = new THREE.Vector3(0,0,0);
 		let StoppedF = 1;
 		let StoppedL = 1;
@@ -354,6 +388,7 @@ class GameScene extends THREE.Scene
 			}
 
 		}
+	*/
 		//El raycaster de la gravedad siempre tiene que estar activado sin importar si el jugador
 		//se mueve o no.
 
@@ -372,7 +407,7 @@ class GameScene extends THREE.Scene
 		}
 
 		//Aquí se realiza el cálculo para el movimiento
-
+/*
 		this.direction.z = Number(this.movingForward)*StoppedF - Number(this.movingBackward)*StoppedB;
 		this.direction.x = Number(this.movingRight)*StoppedR - Number(this.movingLeft)*StoppedL;
 		this.direction.normalize();
@@ -386,7 +421,7 @@ class GameScene extends THREE.Scene
 
 		this.controls.moveForward(-velocity.z);
 		this.controls.moveRight(- velocity.x);
-
+*/
 		if(this.controls.getObject().position.y < -10){
 			this.controls.getObject().position.y = 80;
 		}

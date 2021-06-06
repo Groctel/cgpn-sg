@@ -137,4 +137,11 @@ export class Chunk
 	{
 		return this.structure;
 	}
+
+	public positionBlock(x: number, z: number): void
+	{
+		const y = this.findHighestBlock(x, z)+1;
+		this.structure[x][z][y] = Blocks.bedrock;
+
+	}
 }
