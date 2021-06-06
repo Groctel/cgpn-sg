@@ -92,7 +92,7 @@ export default class World
 			if (value == World.builders[chunkX][chunkZ].chunkMesh()) delete World.worldMesh[index];
 		});
 
-		World.structure[chunkX][chunkZ].positionBlock(Math.round((blockX+chunkX*Chunk.base)%Chunk.base), Math.round((blockZ+chunkZ*Chunk.base)%Chunk.base), blockY, block);
+		World.structure[chunkX][chunkZ].positionBlock(Math.floor((blockX+chunkX*Chunk.base)%Chunk.base), Math.floor((blockZ+chunkZ*Chunk.base)%Chunk.base), blockY, block);
 
 		this.buildStructure(chunkX, chunkZ);
 

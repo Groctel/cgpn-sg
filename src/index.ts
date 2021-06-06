@@ -28,6 +28,11 @@ $(() =>
 		Controls.onKeyUp(event);
 	}, false);
 
+	window.addEventListener('mousedown', (event) =>
+	{
+		scene.onDocumentMouseDown(event);
+	}, false);
+
 	window.addEventListener('resize', () =>
 	{
 		Controls.onWindowResize();

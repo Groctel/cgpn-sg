@@ -140,6 +140,7 @@ export class Chunk
 
 	public positionBlock(x: number, z: number, y: number, type: Block): void
 	{
+
 		if(type == Blocks.air){
 			y -= 1;
 		}
