@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 
 import { AdyChunks, Chunk } from './chunk';
+import { Block } from './blocks';
 import ChunkBuilder from './chunk_builder';
 import Sky from './sky';
 
@@ -10,7 +11,7 @@ export default class World
 	private static structure: Chunk[][];
 	private static builders:  ChunkBuilder[][];
 	private static sky:       Sky;
-	private static worldMesh: THREE.Object3D[];
+	private static worldMesh: THREE.Mesh[];
 
 	public static readonly size = 10;
 	public static readonly gravity = 0.04;
@@ -21,7 +22,7 @@ export default class World
 		World.structure = new Array<Array<Chunk>>(World.size);
 		World.builders  = new Array<Array<ChunkBuilder>>(World.size);
 		World.sky       = new Sky(World.size * Chunk.base);
-		World.worldMesh = new Array<THREE.Object3D>();
+		World.worldMesh = new Array<THREE.Mesh>();
 
 		scene.add(World.sky.mesh());
 
@@ -51,6 +52,7 @@ export default class World
 			x-1 >= 0         && z+1 < World.size ? World.structure[x-1][z+1] : null,
 			x-1 >= 0         && z-1 >= 0         ? World.structure[x-1][z-1] : null
 		);
+
 		World.builders[x][z] = new ChunkBuilder(World.structure[x][z], ady_chunks);
 
 		World.scene.add(World.builders[x][z].chunkMesh()
@@ -81,9 +83,24 @@ export default class World
 		return World.worldMesh;
 	}
 
-	public returnMeshesRelativePosition(pos_x: number, pos_z: number): THREE.Object3D[]
+	public putBlock(chunkX: number, chunkZ: number, blockX: number, blockY: number, blockZ: number, block: Block ): void
 	{
-		const relativeMeshes = new Array<THREE.Object3D>();
+		chunkX = ~~((chunkX + (Chunk.base*World.size) /2) / Chunk.base);
+		chunkZ = ~~((chunkZ + (Chunk.base*World.size) /2) / Chunk.base);
+
+		World.worldMesh.forEach((value, index)=>{
+			if (value == World.builders[chunkX][chunkZ].chunkMesh()) delete World.worldMesh[index];
+		});
+
+		World.structure[chunkX][chunkZ].positionBlock(Math.round((blockX+chunkX*Chunk.base)%Chunk.base), Math.round((blockZ+chunkZ*Chunk.base)%Chunk.base), blockY, block);
+
+		this.buildStructure(chunkX, chunkZ);
+
+	}
+
+	public returnMeshesRelativePosition(pos_x: number, pos_z: number): THREE.Mesh[]
+	{
+		const relativeMeshes = new Array<THREE.Mesh>();
 
 		for(let x = 0; x < World.worldMesh.length; x++){
 			let distance = 0;

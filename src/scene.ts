@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import * as THREE from 'three';
 
+import { Block, Blocks } from './blocks';
 import Player from './player';
 import World from './world';
 
@@ -9,6 +10,9 @@ export default class GameScene extends THREE.Scene
 	public static renderer = new THREE.WebGLRenderer();
 
 	private world: World;
+	private selectedBlock: Block;
+	private raycaster: THREE.Raycaster;
+	private worldMeshes: THREE.Mesh[];
 
 	constructor (canvas: string)
 	{
@@ -18,6 +22,17 @@ export default class GameScene extends THREE.Scene
 		this.constructLights();
 
 		this.world = new World(this);
+
+		this.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0,1,0), 0, 16);
+
+		this.world = new World(this);
+		this.add(Player.camera);
+		Player.spawn();
+
+		this.worldMeshes = new Array<THREE.Mesh>();
+		this.recalculate();
+
+		this.selectedBlock = Blocks.bedrock;
 
 		Player.spawn();
 		this.add(Player.camera);
@@ -32,6 +47,49 @@ export default class GameScene extends THREE.Scene
 
 		this.add(light);
 		this.add(spotlight);
+	}
+
+	onDocumentMouseDown (event): void
+	{
+		switch (event.wich)
+		{
+		case 1:
+			this.putBlock(Blocks.air);
+			break;
+
+		case 3:
+			this.putBlock(this.selectedBlock);
+			break;
+		}
+	}
+
+	putBlock (block: Block): void
+	{
+		const directionVector = new THREE.Vector3();
+		Player.camera.getWorldDirection(directionVector);
+
+		this.raycaster = new THREE.Raycaster(new THREE.Vector3(), directionVector, 0, 16);
+		this.raycaster.ray.origin.copy(Player.position);
+
+		const intersection = this.raycaster.intersectObjects(this.worldMeshes);
+
+		if(intersection.length >0){
+			const x = intersection[0].point.x;
+			const y = Math.round(intersection[0].point.y);
+			const z = intersection[0].point.z;
+
+			const chunkX = intersection[0].object.position.x;
+			const chunkZ = intersection[0].object.position.z;
+
+			console.log(y);
+
+			this.world.putBlock(chunkX, chunkZ, x, y, z, block);
+		}
+	}
+
+	recalculate (): void
+	{
+		this.worldMeshes = this.world.returnMeshesRelativePosition(Player.position.x, Player.position.z);
 	}
 
 	constructRenderer (canvas: string): void
