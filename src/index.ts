@@ -8,7 +8,7 @@ $(function (): void
 	window.addEventListener('resize', () => scene.onWindowResize());
 	window.addEventListener('keydown', (event) => scene.onKeyDown(event),true);
 	window.addEventListener('keyup', (event) => scene.onKeyUp(event));
-	window.addEventListener('mousedown', (event) => scene.onDocumentMouseDown(event));
+	window.addEventListener('mousedown', (event) => scene.onDocumentMouseDown(event), false);
 	scene.update();
 });
 
