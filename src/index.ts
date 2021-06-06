@@ -1,14 +1,37 @@
 import $ from 'jquery';
-import { GameScene } from './scene';
+import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 
-$(function (): void
+import Controls from './controls';
+import GameScene from './scene';
+import Player from './player';
+
+$(() =>
 {
 	const scene = new GameScene("#WebGL-output");
+	const cam_controls = new PointerLockControls(
+		Player.camera,
+		GameScene.renderer.domElement
+	);
 
-	window.addEventListener('resize', () => scene.onWindowResize());
-	window.addEventListener('keydown', (event) => scene.onKeyDown(event),true);
-	window.addEventListener('keyup', (event) => scene.onKeyUp(event));
+	window.addEventListener('click', () =>
+	{
+		cam_controls.lock();
+	}, false);
+
+	window.addEventListener('keydown', (event) =>
+	{
+		Controls.onKeyDown(event);
+	}, false);
+
+	window.addEventListener('keyup', (event) =>
+	{
+		Controls.onKeyUp(event);
+	}, false);
+
+	window.addEventListener('resize', () =>
+	{
+		Controls.onWindowResize();
+	}, false);
+
 	scene.update();
 });
-
-

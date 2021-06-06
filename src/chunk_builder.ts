@@ -195,6 +195,11 @@ export default class ChunkBuilder
 		this.mesh = new THREE.Mesh(geometry, Textures.material);
 	}
 
+	public adyChunks (): AdyChunks
+	{
+		return this.ady_chunks;
+	}
+
 	public chunkMesh (): THREE.Mesh
 	{
 		return this.mesh;

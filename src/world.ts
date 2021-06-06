@@ -13,6 +13,7 @@ export default class World
 	private static worldMesh: THREE.Object3D[];
 
 	public static readonly size = 10;
+	public static readonly gravity = 0.04;
 
 	constructor (scene: THREE.Scene)
 	{
@@ -58,12 +59,21 @@ export default class World
 		);
 
 		World.worldMesh.push(World.builders[x][z].chunkMesh());
-
 	}
 
 	private generateStructure (x: number, z: number): void
 	{
 		World.structure[x][z] = new Chunk(x, z, World.size);
+	}
+
+	public static adyChunksAt (x: number, z: number): AdyChunks
+	{
+		return World.builders[x][z].adyChunks();
+	}
+
+	public static chunkAt (x: number, z: number): Chunk
+	{
+		return World.structure[x][z];
 	}
 
 	public returnMeshes(): THREE.Object3D[]
@@ -85,7 +95,5 @@ export default class World
 		}
 
 		return relativeMeshes;
-
 	}
-
 }
