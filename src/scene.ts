@@ -2,6 +2,7 @@ import $ from 'jquery';
 import * as THREE from 'three';
 
 import { Block, Blocks } from './blocks';
+import { AdyChunks, Chunk } from './chunk';
 import Player from './player';
 import World from './world';
 
@@ -47,6 +48,7 @@ export default class GameScene extends THREE.Scene
 
 	onDocumentMouseDown (event: MouseEvent): void
 	{
+		this.recalculate();
 		switch(event.button)
 		{
 		case 0:
@@ -80,13 +82,9 @@ export default class GameScene extends THREE.Scene
 				cube_position.copy(intersection[0].point).add(orientation);
 			}
 
-			const chunkX = intersection[0].object.position.x;
-			const chunkZ = intersection[0].object.position.z;
+			const chunk = intersection[0].object.position;
 
-			console.log(cube_position);
-
-			this.world.putBlock(chunkX, chunkZ, cube_position, block);
-			this.recalculate();
+			this.world.putBlock(chunk, cube_position, block);
 		}
 	}
 
