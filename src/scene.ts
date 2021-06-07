@@ -31,7 +31,7 @@ export default class GameScene extends THREE.Scene
 
 		this.selectedBlock = Blocks.bedrock;
 
-		Player.spawn();
+		Player.spawn(this);
 		this.add(Player.camera);
 	}
 

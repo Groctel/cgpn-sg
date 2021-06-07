@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 
 import { AdyChunks, Chunk } from './chunk';
+import { Block, Blocks} from './block';
 import World from './world';
 
 const y_axis = new THREE.Vector3(0, 1, 0);
@@ -33,6 +34,13 @@ export default class Player
 	private static ady_chunks: AdyChunks;
 	private static chunk: Chunk;
 
+	private static geometry = new THREE.BoxGeometry(1,1,1);
+	private static material= new THREE.MeshPhongMaterial({color: 0xffff00});
+
+	private static cubo = new THREE.Mesh();
+	private static player_mod = new THREE.Mesh();
+	private static scene: THREE.Scene;
+
 	public static camera = new THREE.PerspectiveCamera(
 		80,
 		window.innerWidth / window.innerHeight,
@@ -45,33 +53,52 @@ export default class Player
 	constructor ()
 	{
 		//Creamos el brazo
-		// this.brazoDch = new THREE.Mesh(this.geometria, this.material);
-		// this.brazoDch.scale.x *=0.75;
-		// this.brazoDch.scale.y *=3;
-		// this.brazoDch.scale.z *=0.75;
+		// Player.brazoDch = new THREE.Mesh(Player.geometria, Player.material);
+		// Player.brazoDch.scale.x *=0.75;
+		// Player.brazoDch.scale.y *=3;
+		// Player.brazoDch.scale.z *=0.75;
 
-		// this.brazoDch.position.y -= 1.3;
+		// Player.brazoDch.position.y -= 1.3;
 
-		// this.brazoAparte = new THREE.Object3D();
+		// Player.brazoAparte = new THREE.Object3D();
 
-		// this.brazoAparte.add(this.brazoDch);
-		// this.brazoAparte.rotation.x = 70*(Math.PI/180);
+		// Player.brazoAparte.add(Player.brazoDch);
+		// Player.brazoAparte.rotation.x = 70*(Math.PI/180);
 
 		////Creamos El cubo que señala el objeto que sujeta el jugador
-		//this.cubo = new THREE.Mesh(this.geometria,this.materialUp);
-		//this.cubo.scale.x *=0.75;
-		//this.cubo.scale.y *=0.75;
-		//this.cubo.scale.z *=0.75;
+		// Player.character.add(Player.cubo);
+		// Player.add(Player.character);
+	}
 
-		// this.cubo.position.z -= 2.7;
-		// this.cubo.position.y -= 0.5;
-		// this.cubo.position.x -= 0.5;
+	private static generateModel(): void
+	{
+		Player.cubo = new THREE.Mesh(Player.geometry,Player.material);
+		Player.cubo.scale.x *=0.75;
+		Player.cubo.scale.y *=0.75;
+		Player.cubo.scale.z *=0.75;
+
+		Player.cubo.position.z -= 1.7;
+		Player.cubo.position.y -= 0.5;
+		Player.cubo.position.x += 0.5;
 
 
-		// this.character = new THREE.Object3D();
-		// this.character.add(this.brazoAparte);
-		// this.character.add(this.cubo);
-		// this.add(this.character);
+		Player.player_mod.add(Player.cubo);
+		Player.scene.add(Player.player_mod);
+
+	}
+
+	private static generateCubeTextures (block: Block): number[]
+	{
+		const uvs = new Array<Array<number>>(24);
+
+		uvs.push(block.uv_side);
+		uvs.push(block.uv_side);
+		uvs.push(block.uv_top);
+		uvs.push(block.uv_bottom);
+		uvs.push(block.uv_side);
+		uvs.push(block.uv_side);
+
+		return uvs.flat();
 	}
 
 	private static willCollideAt (x: number, z: number, y: number): boolean
@@ -234,10 +261,12 @@ export default class Player
 		}
 	}
 
-	public static spawn (): void
+	public static spawn (sce: THREE.Scene): void
 	{
 		Player.position.set(0, 23, 0);
 		Player.updateWorldPosition();
+		Player.scene = sce;
+		Player.generateModel();
 	}
 
 	public static updatePosition (): void
@@ -248,5 +277,17 @@ export default class Player
 
 		Player.updatePositionAgainstCollisions();
 		Player.updateWorldPosition();
+
+		Player.player_mod.position.set(
+			Player.camera.position.x,
+			Player.camera.position.y,
+			Player.camera.position.z
+		);
+
+		Player.player_mod.rotation.set(
+			Player.camera.rotation.x,
+			Player.camera.rotation.y,
+			Player.camera.rotation.z
+		);
 	}
 }
