@@ -134,11 +134,9 @@ export class Chunk
 		return this.structure;
 	}
 
-	public positionBlock(x: number, z: number, y: number, type: Block): void
+	public addBlock (x: number, z: number, y: number, block: Block): void
 	{
-
-		this.structure[x][z][y] = type;
-		console.log(x, y, z);
-
+		this.structure[x][z][y] = block;
+		console.log(this.pos_x, this.pos_z, x, z, y, this.structure[x][z][y]);
 	}
 }

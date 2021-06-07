@@ -7,11 +7,11 @@ import Sky from './sky';
 
 export default class World
 {
+	private static builders:  ChunkBuilder[][];
+	private static meshes:    THREE.Mesh[][];
 	private static scene:     THREE.Scene;
 	private static structure: Chunk[][];
-	private static builders:  ChunkBuilder[][];
 	private static sky:       Sky;
-	private static worldMesh: THREE.Mesh[];
 
 	public static readonly size = 5;
 	public static readonly gravity = 0.04;
@@ -22,25 +22,26 @@ export default class World
 		World.structure = new Array<Array<Chunk>>(World.size);
 		World.builders  = new Array<Array<ChunkBuilder>>(World.size);
 		World.sky       = new Sky(World.size * Chunk.base);
-		World.worldMesh = new Array<THREE.Mesh>();
+		World.meshes    = new Array<Array<THREE.Mesh>>(World.size);
 
 		scene.add(World.sky.mesh());
 
 		for (let x = 0; x < World.size; x++)
 		{
 			World.builders[x]  = new Array<ChunkBuilder>(World.size);
+			World.meshes[x]    = new Array<THREE.Mesh>(World.size);
 			World.structure[x] = new Array<Chunk>(World.size);
 
 			for (let z = 0; z < World.size; z++)
-				this.generateStructure(x, z);
+				World.generateStructure(x, z);
 		}
 
 		for (let x = 0; x < World.size; x++)
 			for (let z = 0; z < World.size; z++)
-				this.buildStructure(x, z);
+				World.buildStructure(x, z);
 	}
 
-	private buildStructure (x: number, z: number): void
+	private static buildStructure (x: number, z: number): void
 	{
 		const ady_chunks = new AdyChunks(
 			x+1 < World.size ? World.structure[x+1][z] : null,
@@ -60,12 +61,24 @@ export default class World
 			.translateZ(z * Chunk.base - (Chunk.base * World.size) / 2)
 		);
 
-		World.worldMesh.push(World.builders[x][z].chunkMesh());
+		World.meshes[x][z] = World.builders[x][z].chunkMesh();
 	}
 
-	private generateStructure (x: number, z: number): void
+	private static generateStructure (x: number, z: number): void
 	{
 		World.structure[x][z] = new Chunk(x, z, World.size);
+	}
+
+	public static addBlock (pos: THREE.Vector3, block: Block): void
+	{
+		const chunk_x = ~~((pos.x + (World.size * Chunk.base)/2)/Chunk.base);
+		const chunk_z = ~~((pos.z + (World.size * Chunk.base)/2)/Chunk.base);
+		const block_x = ~~(pos.x + (World.size * Chunk.base)/2) % Chunk.base;
+		const block_z = ~~(pos.z + (World.size * Chunk.base)/2) % Chunk.base;
+
+		World.scene.remove(World.meshes[chunk_x][chunk_z]);
+		World.structure[chunk_x][chunk_z].addBlock(block_x, block_z, ~~pos.y, block);
+		World.buildStructure(chunk_x, chunk_z);
 	}
 
 	public static adyChunksAt (x: number, z: number): AdyChunks
@@ -78,45 +91,13 @@ export default class World
 		return World.structure[x][z];
 	}
 
-	public returnMeshes(): THREE.Object3D[]
+	public static meshAt(x: number, z: number): THREE.Mesh
 	{
-		return World.worldMesh;
-	}
+		let mesh = null;
 
-	public putBlock(chunk: THREE.Vector3, position: THREE.Vector3, block: Block): void
-	{
-		const chunkX = ~~((chunk.x + (Chunk.base*World.size) /2) / Chunk.base);
-		const chunkZ = ~~((chunk.z + (Chunk.base*World.size) /2) / Chunk.base);
+		if (x >= 0 && x < World.size && z >= 0 && z < World.size)
+			mesh = World.meshes[x][z];
 
-
-		World.scene.remove(World.builders[chunkX][chunkZ].chunkMesh());
-
-		const index = World.worldMesh.indexOf(World.builders[chunkX][chunkZ].chunkMesh());
-		World.worldMesh.splice(index,1);
-
-		World.structure[chunkX][chunkZ].positionBlock(
-			Math.floor((position.x+chunkX*Chunk.base)%Chunk.base),
-			Math.floor((position.z+chunkZ*Chunk.base)%Chunk.base),
-			Math.floor(position.y),
-			block);
-
-		this.buildStructure(chunkX, chunkZ);
-
-	}
-
-	public returnMeshesRelativePosition(pos_x: number, pos_z: number): THREE.Mesh[]
-	{
-		const relativeMeshes = new Array<THREE.Mesh>();
-
-		for(let x = 0; x < World.worldMesh.length; x++){
-			let distance = 0;
-			distance += Math.abs(World.worldMesh[x].position.x - pos_x);
-			distance += Math.abs(World.worldMesh[x].position.z - pos_z);
-			if(distance <= 32){
-				relativeMeshes.push(World.worldMesh[x]);
-			}
-		}
-
-		return relativeMeshes;
+		return mesh;
 	}
 }

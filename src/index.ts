@@ -30,7 +30,7 @@ $(() =>
 
 	window.addEventListener('mousedown', (event) =>
 	{
-		scene.onDocumentMouseDown(event);
+		Controls.onMouseDown(event);
 	}, false);
 
 	window.addEventListener('resize', () =>

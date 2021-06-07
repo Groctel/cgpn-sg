@@ -1,3 +1,4 @@
+import { Blocks } from './blocks';
 import GameScene from './scene';
 import Player from './player';
 
@@ -77,6 +78,20 @@ export default class Controls
 				Player.moveBackwards();
 			else
 				Player.stopMovingFront();
+		}
+	}
+
+	public static onMouseDown (event: MouseEvent): void
+	{
+		switch(event.button)
+		{
+		case 0:
+			GameScene.addBlock(Blocks.air);
+			break;
+
+		case 2:
+			GameScene.addBlock(GameScene.selectedBlock);
+			break;
 		}
 	}
 
