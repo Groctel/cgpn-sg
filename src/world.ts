@@ -13,7 +13,7 @@ export default class World
 	private static sky:       Sky;
 	private static worldMesh: THREE.Mesh[];
 
-	public static readonly size = 10;
+	public static readonly size = 5;
 	public static readonly gravity = 0.04;
 
 	constructor (scene: THREE.Scene)
