@@ -74,15 +74,16 @@ export default class GameScene extends THREE.Scene
 		const intersection = this.raycaster.intersectObjects(this.worldMeshes);
 
 		if(intersection.length >0){
-			const x = intersection[0].point.x;
-			const y = Math.ceil(intersection[0].point.y);
-			const z = intersection[0].point.z;
+			const cube_position = new THREE.Vector3();
+			const orientation = intersection[0].face.normal;
+
+			cube_position.copy(intersection[0].point);
 
 			const chunkX = intersection[0].object.position.x;
 			const chunkZ = intersection[0].object.position.z;
 
 
-			this.world.putBlock(chunkX, chunkZ, x, y, z, block);
+			this.world.putBlock(chunkX, chunkZ, cube_position, orientation, block);
 		}
 	}
 

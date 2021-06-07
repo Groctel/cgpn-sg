@@ -83,8 +83,9 @@ export default class World
 		return World.worldMesh;
 	}
 
-	public putBlock(chunkX: number, chunkZ: number, blockX: number, blockY: number, blockZ: number, block: Block ): void
+	public putBlock(chunkX: number, chunkZ: number, position: THREE.Vector3, ori: THREE.Vector3, block: Block): void
 	{
+
 		chunkX = ~~((chunkX + (Chunk.base*World.size) /2) / Chunk.base);
 		chunkZ = ~~((chunkZ + (Chunk.base*World.size) /2) / Chunk.base);
 
@@ -93,7 +94,11 @@ export default class World
 		const index = World.worldMesh.indexOf(World.builders[chunkX][chunkZ].chunkMesh());
 		World.worldMesh.splice(index,1);
 
-		World.structure[chunkX][chunkZ].positionBlock(Math.floor((blockX+chunkX*Chunk.base)%Chunk.base), Math.floor((blockZ+chunkZ*Chunk.base)%Chunk.base), blockY, block);
+		World.structure[chunkX][chunkZ].positionBlock(
+			Math.floor((position.x+chunkX*Chunk.base)%Chunk.base) + ori.x,
+			Math.floor((position.z+chunkZ*Chunk.base)%Chunk.base) + ori.z,
+			Math.floor(position.y)+ori.y,
+			block);
 
 		this.buildStructure(chunkX, chunkZ);
 

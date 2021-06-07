@@ -67,7 +67,7 @@ export default class ChunkBuilder
 		return block;
 	}
 
-	private generateBlockFaces (x: number, z: number, y: number): void
+	public generateBlockFaces (x: number, z: number, y: number): void
 	{
 		const block    = this.struct[x][z][y];
 		const block_px = this.blockAt(x+1, z,   y);
