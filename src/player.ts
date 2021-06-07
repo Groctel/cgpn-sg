@@ -20,6 +20,7 @@ export default class Player
 	private static fall_speed  = 0;
 	private static front_speed = 0;
 	private static right_speed = 0;
+	private static jump_stage  = 0;
 
 	private static look       = new THREE.Vector3(0, 0, 0);
 	private static next_block  = new THREE.Vector3(0, 0, 0);
@@ -32,14 +33,10 @@ export default class Player
 	private static ady_chunks: AdyChunks;
 	private static chunk: Chunk;
 
-	private static grounded = false;
-	private static jumping = false;
-	private static prev_time = new Date().getTime();
-
 	public static camera = new THREE.PerspectiveCamera(
-		45,
+		80,
 		window.innerWidth / window.innerHeight,
-		0.1,
+		0.01,
 		1000
 	);
 	public static position  = Player.camera.position;
@@ -102,22 +99,22 @@ export default class Player
 		else if (x >= Chunk.base)
 		{
 			if (z >= Chunk.base)
-				collide = this.ady_chunks.pxpz === null
+				collide = Player.ady_chunks.pxpz === null
 					? true
 					: Player.ady_chunks.pxpz.struct()[0][z][y].attrs.solid;
 			else
-				collide = this.ady_chunks.px === null
+				collide = Player.ady_chunks.px === null
 					? true
 					: Player.ady_chunks.px.struct()[0][z][y].attrs.solid;
 		}
 		else if (z < 0)
 		{
 			if (x >= Chunk.base)
-				collide = this.ady_chunks.pxnz === null
+				collide = Player.ady_chunks.pxnz === null
 					? true
 					: Player.ady_chunks.pxnz.struct()[x][Chunk.base-1][y].attrs.solid;
 			else
-				collide = this.ady_chunks.nz === null
+				collide = Player.ady_chunks.nz === null
 					? true
 					: Player.ady_chunks.nz.struct()[x][Chunk.base-1][y].attrs.solid;
 		}
@@ -126,11 +123,11 @@ export default class Player
 			if (x < 0)
 				collide = Player.ady_chunks.nxpz === null
 					? true
-					: this.ady_chunks.nxpz.struct()[x][0][y].attrs.solid;
+					: Player.ady_chunks.nxpz.struct()[x][0][y].attrs.solid;
 			else
 				collide = Player.ady_chunks.pz === null
 					? true
-					: this.ady_chunks.pz.struct()[x][0][y].attrs.solid;
+					: Player.ady_chunks.pz.struct()[x][0][y].attrs.solid;
 		}
 
 		return collide;
@@ -138,7 +135,6 @@ export default class Player
 
 	private static updatePositionAgainstCollisions (): void
 	{
-		const time = new Date().getTime();
 		Player.step_fwd = Player.look.clone()
 			.multiplyScalar(Player.front_speed);
 
@@ -149,17 +145,16 @@ export default class Player
 		Player.next_step.addVectors(Player.step_fwd, Player.step_side);
 		Player.next_block.addVectors(Player.curr_block, Player.next_step);
 
-		if(Player.jumping){
-			const delta = ( time - Player.prev_time ) / 1000;
+		if (Player.jump_stage > 0)
+		{
+			Player.fall_speed -= Math.sin(Player.jump_stage) * 0.01;
+			Player.jump_stage += 0.1;
 
-			Player.fall_speed -= 9.8 * 30 * delta;
-
-			if(Player.fall_speed < 0){
-				Player.jumping = false;
-			}
-
+			if (Player.jump_stage > Math.PI + 0.2)
+				Player.jump_stage = 0;
 		}
-		else{
+		else
+		{
 			if (!Player.willCollideAt(
 				~~Player.curr_block.x,
 				~~Player.curr_block.z,
@@ -169,13 +164,10 @@ export default class Player
 					Player.fall_speed += World.gravity * Player.fall_speed;
 				else
 					Player.fall_speed = 0.15;
-
-				this.grounded = false;
 			}
 			else
 			{
 				Player.fall_speed = 0;
-				this.grounded = true;
 
 				if (Player.willCollideAt(
 					~~Player.curr_block.x,
@@ -195,15 +187,9 @@ export default class Player
 			}
 		}
 
-		Player.prev_time = time;
-
-		if(this.jumping)
-			Player.next_step.y = Player.fall_speed;
-		else
-			Player.next_step.y = -Player.fall_speed;
+		Player.next_step.y = -Player.fall_speed;
 
 		Player.position.add(Player.next_step);
-
 	}
 
 	private static updateWorldPosition (): void
@@ -229,15 +215,24 @@ export default class Player
 		Player.curr_block.z = (curr_chunk.z - z_chunk) * Chunk.base + 0.5;
 	}
 
-	public static moveForward   (): void { Player.front_speed =  Player.speed; }
-	public static moveBackwards (): void { Player.front_speed = -Player.speed; }
-	public static moveLeft      (): void { Player.right_speed =  Player.speed; }
-	public static moveRight     (): void { Player.right_speed = -Player.speed; }
-	public static jump			 (): void { Player.jumping = true; Player.fall_speed = 10; }
-	public static isGrounded	 (): boolean {return this.grounded;}
+	public static moveForward     (): void { Player.front_speed =  Player.speed; }
+	public static moveBackwards   (): void { Player.front_speed = -Player.speed; }
+	public static moveLeft        (): void { Player.right_speed =  Player.speed; }
+	public static moveRight       (): void { Player.right_speed = -Player.speed; }
+	public static stopMovingFront (): void { Player.front_speed = 0; }
+	public static stopMovingSide  (): void { Player.right_speed = 0; }
 
-	public static stopMovingFront    (): void { Player.front_speed = 0; }
-	public static stopMovingSide     (): void { Player.right_speed = 0; }
+	public static jump (): void
+	{
+		if (Player.willCollideAt(
+			~~Player.curr_block.x,
+			~~Player.curr_block.z,
+			~~(Player.position.y-1.3)
+		)) {
+			Player.jump_stage = Math.PI / 2 + 0.5;
+			Player.fall_speed = -Math.sin(Player.jump_stage) * 0.1;
+		}
+	}
 
 	public static spawn (): void
 	{

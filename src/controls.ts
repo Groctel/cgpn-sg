@@ -7,7 +7,6 @@ export default class Controls
 	private static key_d = false;
 	private static key_s = false;
 	private static key_w = false;
-	private static key_space = false;
 
 	public static onKeyDown (event: KeyboardEvent): void
 	{
@@ -33,7 +32,7 @@ export default class Controls
 			Controls.key_w = true;
 			Player.moveForward();
 		}
-		else if (key === " " && Player.isGrounded())
+		else if (key === " ")
 		{
 			Player.jump();
 		}
