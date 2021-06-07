@@ -1,18 +1,18 @@
-import { Blocks } from './blocks';
+import { Cubes } from './cubes';
 import GameScene from './scene';
 import Player from './player';
 
-const placeable_blocks = [
-	Blocks.dirt,
-	Blocks.grass,
-	Blocks.oak_leaves,
-	Blocks.oak_wood,
-	Blocks.stone,
+const placeable_cubes = [
+	Cubes.dirt,
+	Cubes.grass,
+	Cubes.oak_leaves,
+	Cubes.oak_wood,
+	Cubes.stone,
 ];
 
 export default class Controls
 {
-	private static selected_block = 0;
+	private static selected_cube = 0;
 	private static key_a = false;
 	private static key_d = false;
 	private static key_s = false;
@@ -95,11 +95,11 @@ export default class Controls
 		switch(event.button)
 		{
 		case 0:
-			GameScene.delBlock();
+			GameScene.delCube();
 			break;
 
 		case 2:
-			GameScene.addBlock(placeable_blocks[Controls.selected_block]);
+			GameScene.addCube(placeable_cubes[Controls.selected_cube]);
 			break;
 		}
 	}
@@ -113,11 +113,11 @@ export default class Controls
 		else if (event.deltaY < 0)
 			offset = -1;
 
-		Controls.selected_block += offset;
-		Controls.selected_block %= placeable_blocks.length;
+		Controls.selected_cube += offset;
+		Controls.selected_cube %= placeable_cubes.length;
 
 		if (offset !== 0)
-			Player.updateCube(placeable_blocks[Controls.selected_block]);
+			Player.updateCube(placeable_cubes[Controls.selected_cube]);
 	}
 
 	public static onWindowResize (): void

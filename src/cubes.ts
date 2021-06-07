@@ -11,7 +11,7 @@ const oak_top_col    = 1; const oak_top_row    = 2;
 const stone_col      = 1; const stone_row      = 0;
 const weeds_col      = 3; const weeds_row      = 2;
 
-class BlockAttrs
+class CubeAttrs
 {
 	breakable:   boolean;
 	empty:       boolean;
@@ -21,9 +21,9 @@ class BlockAttrs
 	x_shaped:    boolean;
 }
 
-export class Block
+export class Cube
 {
-	attrs:     BlockAttrs;
+	attrs:     CubeAttrs;
 	uv_bottom: number[];
 	uv_side:   number[];
 	uv_top:    number[];
@@ -31,9 +31,9 @@ export class Block
 	uv_x2:     number[];
 }
 
-export class Blocks
+export class Cubes
 {
-	public static readonly air: Block =
+	public static readonly air: Cube =
 	{
 		attrs:
 		{
@@ -51,7 +51,7 @@ export class Blocks
 		uv_x2: null,
 	}
 
-	public static readonly bedrock: Block =
+	public static readonly bedrock: Cube =
 	{
 		attrs:
 		{
@@ -84,7 +84,7 @@ export class Blocks
 		uv_x2: null,
 	}
 
-	public static readonly dev_marker: Block =
+	public static readonly dev_marker: Cube =
 	{
 		attrs:
 		{
@@ -117,7 +117,7 @@ export class Blocks
 		uv_x2: null,
 	}
 
-	public static readonly dirt: Block =
+	public static readonly dirt: Cube =
 	{
 		attrs: {
 			breakable: true,
@@ -149,7 +149,7 @@ export class Blocks
 		uv_x2: null,
 	};
 
-	public static readonly grass: Block =
+	public static readonly grass: Cube =
 	{
 		attrs: {
 			breakable: true,
@@ -181,7 +181,7 @@ export class Blocks
 		uv_x2: null,
 	};
 
-	public static readonly oak_leaves: Block =
+	public static readonly oak_leaves: Cube =
 	{
 		attrs:
 		{
@@ -214,7 +214,7 @@ export class Blocks
 		uv_x2: null,
 	};
 
-	public static readonly oak_wood: Block =
+	public static readonly oak_wood: Cube =
 	{
 		attrs: {
 			breakable: true,
@@ -246,7 +246,7 @@ export class Blocks
 		uv_x2: null,
 	};
 
-	public static readonly stone: Block =
+	public static readonly stone: Cube =
 	{
 		attrs: {
 			breakable: true,
@@ -278,7 +278,7 @@ export class Blocks
 		uv_x2: null,
 	};
 
-	public static readonly weeds: Block =
+	public static readonly weeds: Cube =
 	{
 		attrs:
 		{

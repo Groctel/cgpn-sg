@@ -1,4 +1,4 @@
-import { Block, Blocks } from './blocks';
+import { Cube, Cubes } from './cubes';
 import Noise from './noise';
 
 export class AdyChunks
@@ -27,7 +27,7 @@ export class Chunk
 {
 	private static noise_terrain = new Noise(Math.random());
 	private static noise_plants  = new Noise(Math.random());
-	private structure: Block[][][];
+	private structure: Cube[][][];
 	private pos_x: number;
 	private pos_z: number;
 	private max_height = 0;
@@ -39,15 +39,15 @@ export class Chunk
 	{
 		this.pos_x     = pos_x;
 		this.pos_z     = pos_z;
-		this.structure = new Array<Array<Array<Block>>>(Chunk.base);
+		this.structure = new Array<Array<Array<Cube>>>(Chunk.base);
 
 		for (let x = 0; x < Chunk.base; x++)
 		{
-			this.structure[x] = new Array<Array<Block>>(Chunk.base);
+			this.structure[x] = new Array<Array<Cube>>(Chunk.base);
 
 			for (let z = 0; z < Chunk.base; z++)
 			{
-				this.structure[x][z] = new Array<Block>(Chunk.height);
+				this.structure[x][z] = new Array<Cube>(Chunk.height);
 				this.generateTerrain(x, z, world_size);
 				this.generatePlants(x, z, world_size);
 			}
@@ -56,7 +56,7 @@ export class Chunk
 		this.updateMaxHeight();
 	}
 
-	public findHighestBlock (x: number, z: number): number
+	public findHighestCube (x: number, z: number): number
 	{
 		let y = Chunk.height - 1;
 
@@ -68,9 +68,9 @@ export class Chunk
 
 	private generatePlants (x: number, z: number, world_size: number): void
 	{
-		const y = this.findHighestBlock(x, z);
+		const y = this.findHighestCube(x, z);
 
-		if (y < Chunk.height-1 && this.structure[x][z][y] === Blocks.grass)
+		if (y < Chunk.height-1 && this.structure[x][z][y] === Cubes.grass)
 		{
 			const noise = Chunk.noise_plants.simplex2(
 				(this.pos_x * Chunk.base + x) / (world_size * Chunk.base / 5) + 0.1,
@@ -79,9 +79,9 @@ export class Chunk
 
 			if (noise > 0.05)
 				if (Math.abs(~~(noise * 10000) % 100))
-					this.structure[x][z][y+1] = Blocks.weeds;
+					this.structure[x][z][y+1] = Cubes.weeds;
 				else
-					this.structure[x][z][y+1] = Blocks.dev_marker;
+					this.structure[x][z][y+1] = Cubes.dev_marker;
 		}
 	}
 
@@ -99,18 +99,18 @@ export class Chunk
 		let y = 0;
 
 		while (y < bedrock_height)
-			this.structure[x][z][y++] = Blocks.bedrock;
+			this.structure[x][z][y++] = Cubes.bedrock;
 
 		while (y < stone_height)
-			this.structure[x][z][y++] = Blocks.stone;
+			this.structure[x][z][y++] = Cubes.stone;
 
 		while (y < terrain_height -1)
-			this.structure[x][z][y++] = Blocks.dirt;
+			this.structure[x][z][y++] = Cubes.dirt;
 
-		this.structure[x][z][y++] = Blocks.grass;
+		this.structure[x][z][y++] = Cubes.grass;
 
 		while (y < Chunk.height)
-			this.structure[x][z][y++] = Blocks.air;
+			this.structure[x][z][y++] = Cubes.air;
 	}
 
 	public updateMaxHeight (): void
@@ -119,7 +119,7 @@ export class Chunk
 
 		for (let x = 0; x < Chunk.base; x++)
 			for (let z = 0; z < Chunk.base; z++)
-				max_height = Math.max(max_height, this.findHighestBlock(x, z));
+				max_height = Math.max(max_height, this.findHighestCube(x, z));
 
 		this.max_height = max_height;
 	}
@@ -129,21 +129,21 @@ export class Chunk
 		return this.max_height;
 	}
 
-	public struct (): Block[][][]
+	public struct (): Cube[][][]
 	{
 		return this.structure;
 	}
 
-	public addBlock (x: number, z: number, y: number, block: Block): void
+	public addCube (x: number, z: number, y: number, cube: Cube): void
 	{
-		this.structure[x][z][y] = block;
+		this.structure[x][z][y] = cube;
 	}
 
-	public delBlock (x: number, z: number, y: number): void
+	public delCube (x: number, z: number, y: number): void
 	{
 		if (this.structure[x][z][y+1].attrs.x_shaped)
-			this.delBlock(x, z, y+1);
+			this.delCube(x, z, y+1);
 
-		this.structure[x][z][y] = Blocks.air;
+		this.structure[x][z][y] = Cubes.air;
 	}
 }

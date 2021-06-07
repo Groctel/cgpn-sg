@@ -1,4 +1,4 @@
-import { Blocks } from './blocks';
+import { Cubes } from './cubes';
 import { AdyChunks, Chunk } from './chunk';
 import OakTree from './tree';
 
@@ -10,7 +10,7 @@ export default class TreeGenerator
 		const struct = chunk.struct();
 
 		for (let y = 0; y < trunk_height; y++)
-			struct[xi][zi][yi+y] = Blocks.oak_wood;
+			struct[xi][zi][yi+y] = Cubes.oak_wood;
 
 		return trunk_height;
 	}
@@ -71,7 +71,7 @@ export default class TreeGenerator
 
 					for (let y = 0; y < OakTree.crown_height; y++)
 					{
-						if (struct[x_pos][z_pos][yi+y] === Blocks.air)
+						if (struct[x_pos][z_pos][yi+y] === Cubes.air)
 							struct[x_pos][z_pos][yi+y] = OakTree.crown[y][x][z];
 					}
 				}

@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import * as THREE from 'three';
 
-import { Block } from './blocks';
+import { Cube } from './cubes';
 import Player from './player';
 import World from './world';
 
@@ -45,7 +45,7 @@ export default class GameScene extends THREE.Scene
 		return GameScene.raycaster.intersectObjects(Player.cast_meshes);
 	}
 
-	public static addBlock (block: Block): void
+	public static addCube (cube: Cube): void
 	{
 		const intersection = GameScene.intersectRaycaster();
 
@@ -56,12 +56,12 @@ export default class GameScene extends THREE.Scene
 
 			cube_position.add(orientation);
 
-			World.addBlock(cube_position, block);
+			World.addCube(cube_position, cube);
 			Player.updateCastMeshes();
 		}
 	}
 
-	public static delBlock (): void
+	public static delCube (): void
 	{
 		const intersection = GameScene.intersectRaycaster();
 
@@ -69,7 +69,7 @@ export default class GameScene extends THREE.Scene
 		{
 			const cube_position = intersection[0].point;
 
-			World.delBlock(cube_position);
+			World.delCube(cube_position);
 			Player.updateCastMeshes();
 		}
 	}

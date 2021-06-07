@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 import { AdyChunks, Chunk } from './chunk';
-import { Block, Blocks } from './blocks';
+import { Cube, Cubes } from './cubes';
 import Textures from './textures';
 import World from './world';
 
@@ -16,11 +16,11 @@ export default class Player
 	private static jump_stage  = 0;
 
 	private static look       = new THREE.Vector3(0, 0, 0);
-	private static next_block = new THREE.Vector3(0, 0, 0);
+	private static next_cube = new THREE.Vector3(0, 0, 0);
 	private static next_step  = new THREE.Vector3(0, 0, 0);
 	private static step_fwd   = new THREE.Vector3(0, 0, 0);
 	private static step_side  = new THREE.Vector3(0, 0, 0);
-	private static curr_block = new THREE.Vector3(0, 0, 0);
+	private static curr_cube = new THREE.Vector3(0, 0, 0);
 	private static curr_chunk = new THREE.Vector3(-1, 0, -1);
 
 	private static ady_chunks: AdyChunks;
@@ -41,10 +41,10 @@ export default class Player
 	public static position  = Player.camera.position;
 	public static direction = new THREE.Vector3(0, 0, 0);
 
-	private static generateModel (block: Block): void
+	private static generateModel (cube: Cube): void
 	{
 		Player.cube_geometry.setAttribute('uv', new THREE.BufferAttribute(
-			new Float32Array(Player.generateCubeTextures(block)), 2
+			new Float32Array(Player.generateCubeTextures(cube)), 2
 		));
 
 		Player.cube_mesh = new THREE.Mesh(
@@ -57,16 +57,16 @@ export default class Player
 		Player.scene.add(Player.player_mod);
 	}
 
-	private static generateCubeTextures (block: Block): number[]
+	private static generateCubeTextures (cube: Cube): number[]
 	{
 		const uvs = new Array<Array<number>>(24);
 
-		uvs.push(block.uv_side);
-		uvs.push(block.uv_side);
-		uvs.push(block.uv_top);
-		uvs.push(block.uv_bottom);
-		uvs.push(block.uv_side);
-		uvs.push(block.uv_side);
+		uvs.push(cube.uv_side);
+		uvs.push(cube.uv_side);
+		uvs.push(cube.uv_top);
+		uvs.push(cube.uv_bottom);
+		uvs.push(cube.uv_side);
+		uvs.push(cube.uv_side);
 
 		return uvs.flat();
 	}
@@ -140,13 +140,13 @@ export default class Player
 			.multiplyScalar(Player.right_speed);
 
 		Player.next_step.addVectors(Player.step_fwd, Player.step_side);
-		Player.next_block.addVectors(Player.curr_block, Player.next_step);
+		Player.next_cube.addVectors(Player.curr_cube, Player.next_step);
 
 		if (Player.jump_stage > 0)
 		{
 			if (!Player.willCollideAt(
-				~~Player.curr_block.x,
-				~~Player.curr_block.z,
+				~~Player.curr_cube.x,
+				~~Player.curr_cube.z,
 				~~(Player.position.y+1)
 			)) {
 				Player.fall_speed -= Math.sin(Player.jump_stage) * 0.01;
@@ -163,8 +163,8 @@ export default class Player
 		else
 		{
 			if (!Player.willCollideAt(
-				~~Player.curr_block.x,
-				~~Player.curr_block.z,
+				~~Player.curr_cube.x,
+				~~Player.curr_cube.z,
 				~~(Player.position.y-1.3)
 			)) {
 				if (Player.fall_speed > 0 && Player.fall_speed <= 1.5)
@@ -177,8 +177,8 @@ export default class Player
 				Player.fall_speed = 0;
 
 				if (Player.willCollideAt(
-					~~Player.curr_block.x,
-					~~Player.curr_block.z,
+					~~Player.curr_cube.x,
+					~~Player.curr_cube.z,
 					~~Player.position.y-1
 				)) {
 					Player.position.y += 1;
@@ -187,13 +187,13 @@ export default class Player
 
 			if (
 				Player.willCollideAt(
-					~~Player.next_block.x,
-					~~Player.next_block.z,
+					~~Player.next_cube.x,
+					~~Player.next_cube.z,
 					~~Player.position.y-1
 				) ||
 				Player.willCollideAt(
-					~~Player.next_block.x,
-					~~Player.next_block.z,
+					~~Player.next_cube.x,
+					~~Player.next_cube.z,
 					~~Player.position.y
 				)
 			) {
@@ -226,8 +226,8 @@ export default class Player
 			Player.updateCastMeshes();
 		}
 
-		Player.curr_block.x = (curr_chunk.x - x_chunk) * Chunk.base + 0.5;
-		Player.curr_block.z = (curr_chunk.z - z_chunk) * Chunk.base + 0.5;
+		Player.curr_cube.x = (curr_chunk.x - x_chunk) * Chunk.base + 0.5;
+		Player.curr_cube.z = (curr_chunk.z - z_chunk) * Chunk.base + 0.5;
 	}
 
 	public static updateCastMeshes (): void
@@ -275,8 +275,8 @@ export default class Player
 	public static jump (): void
 	{
 		if (Player.willCollideAt(
-			~~Player.curr_block.x,
-			~~Player.curr_block.z,
+			~~Player.curr_cube.x,
+			~~Player.curr_cube.z,
 			~~(Player.position.y-1.3)
 		)) {
 			Player.jump_stage = Math.PI / 2 + 0.5;
@@ -289,7 +289,7 @@ export default class Player
 		Player.position.set(0, 23, 0);
 		Player.updateWorldPosition();
 		Player.scene = sce;
-		Player.generateModel(Blocks.dirt);
+		Player.generateModel(Cubes.dirt);
 	}
 
 	public static updatePosition (): void
@@ -314,8 +314,8 @@ export default class Player
 		);
 	}
 
-	public static updateCube (block: Block): void
+	public static updateCube (cube: Cube): void
 	{
-		Player.generateModel(block);
+		Player.generateModel(cube);
 	}
 }

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils';
 
-import { Block, Blocks } from './blocks';
+import { Cube, Cubes } from './cubes';
 import { AdyChunks, Chunk } from './chunk';
 import Faces from './faces';
 import TreeGenerator from './tree_generator';
@@ -14,7 +14,7 @@ export default class ChunkBuilder
 	private uv:    number[][];
 
 	private chunk:      Chunk;
-	private struct:     Block[][][];
+	private struct:     Cube[][][];
 	private ady_chunks: AdyChunks;
 
 	constructor (chunk: Chunk, ady_chunks: AdyChunks)
@@ -28,113 +28,113 @@ export default class ChunkBuilder
 		this.generateMesh();
 	}
 
-	private blockAt (x: number, z: number, y: number): Block
+	private cubeAt (x: number, z: number, y: number): Cube
 	{
-		let block = null;
+		let cube = null;
 
 		if (
 			x >= 0 && x < Chunk.base &&
 			z >= 0 && z < Chunk.base &&
 			y >= 0 && y < Chunk.height
 		) {
-			block = this.struct[x][z][y];
+			cube = this.struct[x][z][y];
 		}
 		else if (x < 0)
 		{
-			block = this.ady_chunks.nx === null
+			cube = this.ady_chunks.nx === null
 				? null
 				: this.ady_chunks.nx.struct()[Chunk.base-1][z][y];
 		}
 		else if (x >= Chunk.base)
 		{
-			block = this.ady_chunks.px === null
+			cube = this.ady_chunks.px === null
 				? null
 				: this.ady_chunks.px.struct()[0][z][y];
 		}
 		else if (z < 0)
 		{
-			block = this.ady_chunks.nz === null
+			cube = this.ady_chunks.nz === null
 				? null
 				: this.ady_chunks.nz.struct()[x][Chunk.base-1][y];
 		}
 		else if (z >= Chunk.base)
 		{
-			block = this.ady_chunks.pz === null
+			cube = this.ady_chunks.pz === null
 				? null
 				: this.ady_chunks.pz.struct()[x][0][y];
 		}
 
-		return block;
+		return cube;
 	}
 
-	public generateBlockFaces (x: number, z: number, y: number): void
+	public generateCubeFaces (x: number, z: number, y: number): void
 	{
-		const block    = this.struct[x][z][y];
-		const block_px = this.blockAt(x+1, z,   y);
-		const block_pz = this.blockAt(x,   z+1, y);
-		const block_py = this.blockAt(x,   z,   y+1);
-		const block_nx = this.blockAt(x-1, z,   y);
-		const block_nz = this.blockAt(x,   z-1, y);
-		const block_ny = this.blockAt(x,   z,   y-1);
+		const cube    = this.struct[x][z][y];
+		const cube_px = this.cubeAt(x+1, z,   y);
+		const cube_pz = this.cubeAt(x,   z+1, y);
+		const cube_py = this.cubeAt(x,   z,   y+1);
+		const cube_nx = this.cubeAt(x-1, z,   y);
+		const cube_nz = this.cubeAt(x,   z-1, y);
+		const cube_ny = this.cubeAt(x,   z,   y-1);
 
 		if (
-			!block_px ||
-			(block_px.attrs.transparent &&
-				!(block.attrs.groupable && (block === block_px))
+			!cube_px ||
+			(cube_px.attrs.transparent &&
+				!(cube.attrs.groupable && (cube === cube_px))
 			)
 		) {
 			this.buff.push(Faces.px.clone().translate(x, y, z));
-			this.uv.push(block.uv_side);
+			this.uv.push(cube.uv_side);
 		}
 
 		if (
-			!block_pz ||
-			(block_pz.attrs.transparent &&
-				!(block.attrs.groupable && (block === block_pz))
+			!cube_pz ||
+			(cube_pz.attrs.transparent &&
+				!(cube.attrs.groupable && (cube === cube_pz))
 			)
 		) {
 			this.buff.push(Faces.pz.clone().translate(x, y, z));
-			this.uv.push(block.uv_side);
+			this.uv.push(cube.uv_side);
 		}
 
 		if (
-			!block_py ||
-			(block_py.attrs.transparent &&
-				!(block.attrs.groupable && (block === block_py))
+			!cube_py ||
+			(cube_py.attrs.transparent &&
+				!(cube.attrs.groupable && (cube === cube_py))
 			)
 		) {
 			this.buff.push(Faces.py.clone().translate(x, y, z));
-			this.uv.push(block.uv_top);
+			this.uv.push(cube.uv_top);
 		}
 
 		if (
-			!block_nx ||
-			(block_nx.attrs.transparent &&
-				!(block.attrs.groupable && (block === block_nx))
+			!cube_nx ||
+			(cube_nx.attrs.transparent &&
+				!(cube.attrs.groupable && (cube === cube_nx))
 			)
 		) {
 			this.buff.push(Faces.nx.clone().translate(x, y, z));
-			this.uv.push(block.uv_side);
+			this.uv.push(cube.uv_side);
 		}
 
 		if (
-			!block_nz ||
-			(block_nz.attrs.transparent &&
-				!(block.attrs.groupable && (block === block_nz))
+			!cube_nz ||
+			(cube_nz.attrs.transparent &&
+				!(cube.attrs.groupable && (cube === cube_nz))
 			)
 		) {
 			this.buff.push(Faces.nz.clone().translate(x, y, z));
-			this.uv.push(block.uv_side);
+			this.uv.push(cube.uv_side);
 		}
 
 		if (
-			!block_ny ||
-			(block_ny.attrs.transparent &&
-				!(block.attrs.groupable && (block === block_ny))
+			!cube_ny ||
+			(cube_ny.attrs.transparent &&
+				!(cube.attrs.groupable && (cube === cube_ny))
 			)
 		) {
 			this.buff.push(Faces.ny.clone().translate(x, y, z));
-			this.uv.push(block.uv_bottom);
+			this.uv.push(cube.uv_bottom);
 		}
 	}
 
@@ -143,11 +143,11 @@ export default class ChunkBuilder
 		for (let x = 0; x < Chunk.base; x++)
 			for (let z = 0; z < Chunk.base; z++)
 				for (let y = 0; y <= this.chunk.maxHeight(); y++)
-					if (this.struct[x][z][y] === Blocks.dev_marker)
+					if (this.struct[x][z][y] === Cubes.dev_marker)
 						TreeGenerator.genAt(x, z, y, this.chunk, this.ady_chunks);
 	}
 
-	private generateXBlock (x: number, z: number, y: number): void
+	private generateXCube (x: number, z: number, y: number): void
 	{
 		// const shift_x1 = (Math.random() - 0.5) / 2.5;
 		// const shift_z1 = (Math.random() - 0.5) / 2.5;
@@ -178,9 +178,9 @@ export default class ChunkBuilder
 					if (!this.struct[x][z][y].attrs.empty)
 					{
 						if (!this.struct[x][z][y].attrs.x_shaped)
-							this.generateBlockFaces(x, z, y);
+							this.generateCubeFaces(x, z, y);
 						else
-							this.generateXBlock(x, z, y);
+							this.generateXCube(x, z, y);
 					}
 
 		const geometry = BufferGeometryUtils.mergeBufferGeometries(this.buff);

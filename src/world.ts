@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 import { AdyChunks, Chunk } from './chunk';
-import { Block } from './blocks';
+import { Cube } from './cubes';
 import ChunkBuilder from './chunk_builder';
 import Sky from './sky';
 
@@ -80,46 +80,46 @@ export default class World
 		World.structure[x][z] = new Chunk(x, z, World.size);
 	}
 
-	public static addBlock (pos: THREE.Vector3, block: Block): void
+	public static addCube (pos: THREE.Vector3, cube: Cube): void
 	{
 		const chunk_x = ~~((pos.x + (World.size * Chunk.base)/2)/Chunk.base);
 		const chunk_z = ~~((pos.z + (World.size * Chunk.base)/2)/Chunk.base);
-		const block_x = ~~(pos.x + (World.size * Chunk.base)/2) % Chunk.base;
-		const block_z = ~~(pos.z + (World.size * Chunk.base)/2) % Chunk.base;
+		const cube_x = ~~(pos.x + (World.size * Chunk.base)/2) % Chunk.base;
+		const cube_z = ~~(pos.z + (World.size * Chunk.base)/2) % Chunk.base;
 
-		const selected_block = World.structure[chunk_x][chunk_z].struct()[block_x][block_z][~~pos.y];
+		const selected_cube = World.structure[chunk_x][chunk_z].struct()[cube_x][cube_z][~~pos.y];
 
-		if (selected_block.attrs.empty || selected_block.attrs.x_shaped)
+		if (selected_cube.attrs.empty || selected_cube.attrs.x_shaped)
 		{
-			World.structure[chunk_x][chunk_z].addBlock(block_x, block_z, ~~pos.y, block);
+			World.structure[chunk_x][chunk_z].addCube(cube_x, cube_z, ~~pos.y, cube);
 			World.renewStructure(chunk_x, chunk_z);
 		}
 	}
 
-	public static delBlock (pos: THREE.Vector3): void
+	public static delCube (pos: THREE.Vector3): void
 	{
 		const chunk_x = ~~((pos.x + (World.size * Chunk.base)/2)/Chunk.base);
 		const chunk_z = ~~((pos.z + (World.size * Chunk.base)/2)/Chunk.base);
-		const block_x = ~~(pos.x + (World.size * Chunk.base)/2) % Chunk.base;
-		const block_z = ~~(pos.z + (World.size * Chunk.base)/2) % Chunk.base;
+		const cube_x = ~~(pos.x + (World.size * Chunk.base)/2) % Chunk.base;
+		const cube_z = ~~(pos.z + (World.size * Chunk.base)/2) % Chunk.base;
 
-		const selected_block = World.structure[chunk_x][chunk_z].struct()[block_x][block_z][~~pos.y];
+		const selected_cube = World.structure[chunk_x][chunk_z].struct()[cube_x][cube_z][~~pos.y];
 
-		if (selected_block.attrs.breakable)
+		if (selected_cube.attrs.breakable)
 		{
-			World.structure[chunk_x][chunk_z].delBlock(block_x, block_z, ~~pos.y);
+			World.structure[chunk_x][chunk_z].delCube(cube_x, cube_z, ~~pos.y);
 			World.renewStructure(chunk_x, chunk_z);
 
-			if (block_x == 0 && chunk_x > 0)
+			if (cube_x == 0 && chunk_x > 0)
 				World.renewStructure(chunk_x-1, chunk_z);
 
-			if (block_z == 0 && chunk_z > 0)
+			if (cube_z == 0 && chunk_z > 0)
 				World.renewStructure(chunk_x, chunk_z-1);
 
-			if (block_x == Chunk.base-1 && chunk_x < World.size-1)
+			if (cube_x == Chunk.base-1 && chunk_x < World.size-1)
 				World.renewStructure(chunk_x+1, chunk_z);
 
-			if (block_z == Chunk.base-1 && chunk_z < World.size-1)
+			if (cube_z == Chunk.base-1 && chunk_z < World.size-1)
 				World.renewStructure(chunk_x, chunk_z+1);
 		}
 	}
