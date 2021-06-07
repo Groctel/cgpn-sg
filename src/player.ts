@@ -289,7 +289,7 @@ export default class Player
 		Player.position.set(0, 23, 0);
 		Player.updateWorldPosition();
 		Player.scene = sce;
-		Player.generateModel(Cubes.dirt);
+		Player.generateModel(Cubes.brick);
 	}
 
 	public static updatePosition (): void

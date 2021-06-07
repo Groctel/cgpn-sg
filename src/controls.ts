@@ -3,7 +3,9 @@ import GameScene from './scene';
 import Player from './player';
 
 const placeable_cubes = [
+	Cubes.brick,
 	Cubes.dirt,
+	Cubes.glass,
 	Cubes.grass,
 	Cubes.oak_leaves,
 	Cubes.oak_wood,
@@ -114,7 +116,11 @@ export default class Controls
 			offset = -1;
 
 		Controls.selected_cube += offset;
-		Controls.selected_cube %= placeable_cubes.length;
+
+		if (Controls.selected_cube < 0)
+			Controls.selected_cube = placeable_cubes.length-1;
+		else if (Controls.selected_cube >= placeable_cubes.length)
+			Controls.selected_cube = 0;
 
 		if (offset !== 0)
 			Player.updateCube(placeable_cubes[Controls.selected_cube]);

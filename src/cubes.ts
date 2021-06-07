@@ -1,8 +1,10 @@
 import Textures from './textures';
 
 const bedrock_col    = 2; const bedrock_row    = 1;
-const dev_marker_col = 2; const dev_marker_row = 0;
+const brick_col      = 2; const brick_row      = 0;
+const dev_marker_col = 3; const dev_marker_row = 0;
 const dirt_col       = 1; const dirt_row       = 1;
+const glass_col      = 3; const glass_row      = 1;
 const grass_side_col = 0; const grass_side_row = 0;
 const grass_top_col  = 0; const grass_top_row  = 1;
 const oak_leaves_col = 2; const oak_leaves_row = 2;
@@ -84,6 +86,38 @@ export class Cubes
 		uv_x2: null,
 	}
 
+	public static readonly brick: Cube =
+	{
+		attrs: {
+			breakable: true,
+			empty: false,
+			groupable: false,
+			solid: true,
+			transparent: false,
+			x_shaped: false,
+		},
+		uv_bottom: [
+			brick_col     / Textures.cols, (brick_row+1) / Textures.rows,
+			(brick_col+1) / Textures.cols, (brick_row+1) / Textures.rows,
+			brick_col     / Textures.cols, brick_row     / Textures.rows,
+			(brick_col+1) / Textures.cols, brick_row     / Textures.rows,
+		],
+		uv_side: [
+			brick_col     / Textures.cols, (brick_row+1) / Textures.rows,
+			(brick_col+1) / Textures.cols, (brick_row+1) / Textures.rows,
+			brick_col     / Textures.cols, brick_row     / Textures.rows,
+			(brick_col+1) / Textures.cols, brick_row     / Textures.rows,
+		],
+		uv_top: [
+			brick_col     / Textures.cols, (brick_row+1) / Textures.rows,
+			(brick_col+1) / Textures.cols, (brick_row+1) / Textures.rows,
+			brick_col     / Textures.cols, brick_row     / Textures.rows,
+			(brick_col+1) / Textures.cols, brick_row     / Textures.rows,
+		],
+		uv_x1: null,
+		uv_x2: null,
+	};
+
 	public static readonly dev_marker: Cube =
 	{
 		attrs:
@@ -148,6 +182,39 @@ export class Cubes
 		uv_x1: null,
 		uv_x2: null,
 	};
+
+	public static readonly glass: Cube =
+	{
+		attrs: {
+			breakable: true,
+			empty: false,
+			groupable: true,
+			solid: true,
+			transparent: true,
+			x_shaped: false,
+		},
+		uv_bottom: [
+			glass_col     / Textures.cols, (glass_row+1) / Textures.rows,
+			(glass_col+1) / Textures.cols, (glass_row+1) / Textures.rows,
+			glass_col     / Textures.cols, glass_row     / Textures.rows,
+			(glass_col+1) / Textures.cols, glass_row     / Textures.rows,
+		],
+		uv_side: [
+			glass_col     / Textures.cols, (glass_row+1) / Textures.rows,
+			(glass_col+1) / Textures.cols, (glass_row+1) / Textures.rows,
+			glass_col     / Textures.cols, glass_row     / Textures.rows,
+			(glass_col+1) / Textures.cols, glass_row     / Textures.rows,
+		],
+		uv_top: [
+			glass_col     / Textures.cols, (glass_row+1) / Textures.rows,
+			(glass_col+1) / Textures.cols, (glass_row+1) / Textures.rows,
+			glass_col     / Textures.cols, glass_row     / Textures.rows,
+			(glass_col+1) / Textures.cols, glass_row     / Textures.rows,
+		],
+		uv_x1: null,
+		uv_x2: null,
+	};
+
 
 	public static readonly grass: Cube =
 	{
