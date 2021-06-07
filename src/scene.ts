@@ -41,22 +41,38 @@ export default class GameScene extends THREE.Scene
 		this.add(spotlight);
 	}
 
-	public static addBlock (block: Block): void
+	private static intersectRaycaster (): THREE.Intersection[]
 	{
 		Player.camera.getWorldDirection(GameScene.cast_direction);
 		GameScene.raycaster.set(Player.position, GameScene.cast_direction);
+		return GameScene.raycaster.intersectObjects(Player.cast_meshes);
+	}
 
-		const intersection = GameScene.raycaster.intersectObjects(Player.cast_meshes);
+	public static addBlock (block: Block): void
+	{
+		const intersection = GameScene.intersectRaycaster();
 
 		if (intersection.length > 0)
 		{
 			const cube_position = intersection[0].point;
 			const orientation   = intersection[0].face.normal;
 
-			if (block !== Blocks.air)
-				cube_position.add(orientation);
+			cube_position.add(orientation);
 
 			World.addBlock(cube_position, block);
+			Player.updateCastMeshes();
+		}
+	}
+
+	public static delBlock (): void
+	{
+		const intersection = GameScene.intersectRaycaster();
+
+		if (intersection.length > 0)
+		{
+			const cube_position = intersection[0].point;
+
+			World.delBlock(cube_position);
 			Player.updateCastMeshes();
 		}
 	}

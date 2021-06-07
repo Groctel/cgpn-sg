@@ -86,7 +86,7 @@ export default class Controls
 		switch(event.button)
 		{
 		case 0:
-			GameScene.addBlock(Blocks.air);
+			GameScene.delBlock();
 			break;
 
 		case 2:

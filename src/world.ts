@@ -87,20 +87,37 @@ export default class World
 		const block_x = ~~(pos.x + (World.size * Chunk.base)/2) % Chunk.base;
 		const block_z = ~~(pos.z + (World.size * Chunk.base)/2) % Chunk.base;
 
-		World.structure[chunk_x][chunk_z].addBlock(block_x, block_z, ~~pos.y, block);
-		World.renewStructure(chunk_x, chunk_z);
+		if (World.structure[chunk_x][chunk_z].struct()[block_x][block_z][~~pos.y].attrs.empty)
+		{
+			World.structure[chunk_x][chunk_z].addBlock(block_x, block_z, ~~pos.y, block);
+			World.renewStructure(chunk_x, chunk_z);
+		}
+	}
 
-		if (block_x == 0 && chunk_x > 0)
-			World.renewStructure(chunk_x-1, chunk_z);
+	public static delBlock (pos: THREE.Vector3): void
+	{
+		const chunk_x = ~~((pos.x + (World.size * Chunk.base)/2)/Chunk.base);
+		const chunk_z = ~~((pos.z + (World.size * Chunk.base)/2)/Chunk.base);
+		const block_x = ~~(pos.x + (World.size * Chunk.base)/2) % Chunk.base;
+		const block_z = ~~(pos.z + (World.size * Chunk.base)/2) % Chunk.base;
 
-		if (block_z == 0 && chunk_z > 0)
-			World.renewStructure(chunk_x, chunk_z-1);
+		if (!World.structure[chunk_x][chunk_z].struct()[block_x][block_z][~~pos.y].attrs.empty)
+		{
+			World.structure[chunk_x][chunk_z].delBlock(block_x, block_z, ~~pos.y);
+			World.renewStructure(chunk_x, chunk_z);
 
-		if (block_x == Chunk.base-1 && chunk_x < World.size-1)
-			World.renewStructure(chunk_x+1, chunk_z);
+			if (block_x == 0 && chunk_x > 0)
+				World.renewStructure(chunk_x-1, chunk_z);
 
-		if (block_z == Chunk.base-1 && chunk_z < World.size-1)
-			World.renewStructure(chunk_x, chunk_z+1);
+			if (block_z == 0 && chunk_z > 0)
+				World.renewStructure(chunk_x, chunk_z-1);
+
+			if (block_x == Chunk.base-1 && chunk_x < World.size-1)
+				World.renewStructure(chunk_x+1, chunk_z);
+
+			if (block_z == Chunk.base-1 && chunk_z < World.size-1)
+				World.renewStructure(chunk_x, chunk_z+1);
+		}
 	}
 
 	public static adyChunksAt (x: number, z: number): AdyChunks
