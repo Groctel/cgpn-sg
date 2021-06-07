@@ -65,6 +65,7 @@ export default class GameScene extends THREE.Scene
 			}
 
 			World.addBlock(cube_position, block);
+			Player.updateCastMeshes();
 		}
 	}
 

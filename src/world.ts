@@ -64,6 +64,17 @@ export default class World
 		World.meshes[x][z] = World.builders[x][z].chunkMesh();
 	}
 
+	private static renewStructure (x: number, z: number): void
+	{
+		World.scene.remove(World.meshes[x][z]);
+		World.builders[x][z].generateMesh();
+		World.scene.add(World.builders[x][z].chunkMesh()
+			.translateX(x * Chunk.base - (Chunk.base * World.size) / 2)
+			.translateZ(z * Chunk.base - (Chunk.base * World.size) / 2)
+		);
+		World.meshes[x][z] = World.builders[x][z].chunkMesh();
+	}
+
 	private static generateStructure (x: number, z: number): void
 	{
 		World.structure[x][z] = new Chunk(x, z, World.size);
@@ -76,9 +87,20 @@ export default class World
 		const block_x = ~~(pos.x + (World.size * Chunk.base)/2) % Chunk.base;
 		const block_z = ~~(pos.z + (World.size * Chunk.base)/2) % Chunk.base;
 
-		World.scene.remove(World.meshes[chunk_x][chunk_z]);
 		World.structure[chunk_x][chunk_z].addBlock(block_x, block_z, ~~pos.y, block);
-		World.buildStructure(chunk_x, chunk_z);
+		World.renewStructure(chunk_x, chunk_z);
+
+		if (block_x == 0 && chunk_x > 0)
+			World.renewStructure(chunk_x-1, chunk_z);
+
+		if (block_z == 0 && chunk_z > 0)
+			World.renewStructure(chunk_x, chunk_z-1);
+
+		if (block_x == Chunk.base-1 && chunk_x < World.size-1)
+			World.renewStructure(chunk_x+1, chunk_z);
+
+		if (block_z == Chunk.base-1 && chunk_z < World.size-1)
+			World.renewStructure(chunk_x, chunk_z+1);
 	}
 
 	public static adyChunksAt (x: number, z: number): AdyChunks

@@ -137,6 +137,5 @@ export class Chunk
 	public addBlock (x: number, z: number, y: number, block: Block): void
 	{
 		this.structure[x][z][y] = block;
-		console.log(this.pos_x, this.pos_z, x, z, y, this.structure[x][z][y]);
 	}
 }

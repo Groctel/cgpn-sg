@@ -223,46 +223,46 @@ export default class Player
 			Player.chunk        = World.chunkAt(x_chunk, z_chunk);
 			Player.curr_chunk.x = x_chunk;
 			Player.curr_chunk.z = z_chunk;
-
-			Player.cast_meshes.length = 0;
-
-			Player.cast_meshes[0] = World.meshAt(x_chunk, z_chunk);
-
-			const mesh_px = World.meshAt(x_chunk+1, z_chunk);
-			if (mesh_px !== null)
-				Player.cast_meshes.push(mesh_px);
-
-			const mesh_nx = World.meshAt(x_chunk-1, z_chunk);
-			if (mesh_nx !== null)
-				Player.cast_meshes.push(mesh_nx);
-
-			const mesh_pz = World.meshAt(x_chunk, z_chunk+1);
-			if (mesh_pz !== null)
-				Player.cast_meshes.push(mesh_pz);
-
-			const mesh_nz = World.meshAt(x_chunk, z_chunk-1);
-			if (mesh_nz !== null)
-				Player.cast_meshes.push(mesh_nz);
-
-			const mesh_pxpz = World.meshAt(x_chunk+1, z_chunk+1);
-			if (mesh_pxpz !== null)
-				Player.cast_meshes.push(mesh_pxpz);
-
-			const mesh_pxnz = World.meshAt(x_chunk+1, z_chunk-1);
-			if (mesh_pxnz !== null)
-				Player.cast_meshes.push(mesh_pxnz);
-
-			const mesh_nxpz = World.meshAt(x_chunk-1, z_chunk+1);
-			if (mesh_nxpz !== null)
-				Player.cast_meshes.push(mesh_nxpz);
-
-			const mesh_nxnz = World.meshAt(x_chunk-1, z_chunk-1);
-			if (mesh_nxnz !== null)
-				Player.cast_meshes.push(mesh_nxnz);
+			Player.updateCastMeshes();
 		}
 
 		Player.curr_block.x = (curr_chunk.x - x_chunk) * Chunk.base + 0.5;
 		Player.curr_block.z = (curr_chunk.z - z_chunk) * Chunk.base + 0.5;
+	}
+
+	public static updateCastMeshes (): void
+	{
+		Player.cast_meshes.length = 0;
+
+		Player.cast_meshes[0] = World.meshAt(Player.curr_chunk.x, Player.curr_chunk.z);
+
+		const mesh_px   = World.meshAt(Player.curr_chunk.x+1, Player.curr_chunk.z);
+		const mesh_nx   = World.meshAt(Player.curr_chunk.x-1, Player.curr_chunk.z);
+		const mesh_pz   = World.meshAt(Player.curr_chunk.x,   Player.curr_chunk.z+1);
+		const mesh_nz   = World.meshAt(Player.curr_chunk.x,   Player.curr_chunk.z-1);
+		const mesh_pxpz = World.meshAt(Player.curr_chunk.x+1, Player.curr_chunk.z+1);
+		const mesh_pxnz = World.meshAt(Player.curr_chunk.x+1, Player.curr_chunk.z-1);
+		const mesh_nxpz = World.meshAt(Player.curr_chunk.x-1, Player.curr_chunk.z+1);
+		const mesh_nxnz = World.meshAt(Player.curr_chunk.x-1, Player.curr_chunk.z-1);
+
+		if (mesh_px !== null)
+			Player.cast_meshes.push(mesh_px);
+		if (mesh_nx !== null)
+			Player.cast_meshes.push(mesh_nx);
+		if (mesh_pz !== null)
+			Player.cast_meshes.push(mesh_pz);
+		if (mesh_nz !== null)
+			Player.cast_meshes.push(mesh_nz);
+		if (mesh_pxpz !== null)
+			Player.cast_meshes.push(mesh_pxpz);
+		if (mesh_pxnz !== null)
+			Player.cast_meshes.push(mesh_pxnz);
+		if (mesh_nxpz !== null)
+			Player.cast_meshes.push(mesh_nxpz);
+		if (mesh_nxnz !== null)
+			Player.cast_meshes.push(mesh_nxnz);
+
+		// console.log(Player.cast_meshes);
 	}
 
 	public static moveForward     (): void { Player.front_speed =  Player.speed; }
