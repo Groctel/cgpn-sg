@@ -2,8 +2,17 @@ import { Blocks } from './blocks';
 import GameScene from './scene';
 import Player from './player';
 
+const placeable_blocks = [
+	Blocks.dirt,
+	Blocks.grass,
+	Blocks.oak_leaves,
+	Blocks.oak_wood,
+	Blocks.stone,
+];
+
 export default class Controls
 {
+	private static selected_block = 0;
 	private static key_a = false;
 	private static key_d = false;
 	private static key_s = false;
@@ -90,9 +99,25 @@ export default class Controls
 			break;
 
 		case 2:
-			GameScene.addBlock(GameScene.selectedBlock);
+			GameScene.addBlock(placeable_blocks[Controls.selected_block]);
 			break;
 		}
+	}
+
+	public static onWheel (event: WheelEvent): void
+	{
+		let offset = 0;
+
+		if (event.deltaY > 0)
+			offset = 1;
+		else if (event.deltaY < 0)
+			offset = -1;
+
+		Controls.selected_block += offset;
+		Controls.selected_block %= placeable_blocks.length;
+
+		if (offset !== 0)
+			Player.updateCube(placeable_blocks[Controls.selected_block]);
 	}
 
 	public static onWindowResize (): void

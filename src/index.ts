@@ -38,5 +38,10 @@ $(() =>
 		Controls.onWindowResize();
 	}, false);
 
+	window.addEventListener('wheel', (event) =>
+	{
+		Controls.onWheel(event);
+	}, false);
+
 	scene.update();
 });

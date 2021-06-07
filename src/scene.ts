@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import * as THREE from 'three';
 
-import { Block, Blocks } from './blocks';
+import { Block } from './blocks';
 import Player from './player';
 import World from './world';
 
@@ -9,7 +9,6 @@ export default class GameScene extends THREE.Scene
 {
 	public static renderer = new THREE.WebGLRenderer();
 
-	public static selectedBlock: Block;
 	private static direction = new THREE.Vector3();
 	private static raycaster = new THREE.Raycaster(
 		new THREE.Vector3(), GameScene.direction, 0, 10
@@ -22,8 +21,6 @@ export default class GameScene extends THREE.Scene
 
 		this.constructRenderer(canvas);
 		this.constructLights();
-
-		GameScene.selectedBlock = Blocks.bedrock;
 
 		new World(this);
 		Player.spawn(this);

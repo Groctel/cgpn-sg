@@ -87,7 +87,9 @@ export default class World
 		const block_x = ~~(pos.x + (World.size * Chunk.base)/2) % Chunk.base;
 		const block_z = ~~(pos.z + (World.size * Chunk.base)/2) % Chunk.base;
 
-		if (World.structure[chunk_x][chunk_z].struct()[block_x][block_z][~~pos.y].attrs.empty)
+		const selected_block = World.structure[chunk_x][chunk_z].struct()[block_x][block_z][~~pos.y];
+
+		if (selected_block.attrs.empty || selected_block.attrs.x_shaped)
 		{
 			World.structure[chunk_x][chunk_z].addBlock(block_x, block_z, ~~pos.y, block);
 			World.renewStructure(chunk_x, chunk_z);
@@ -101,7 +103,9 @@ export default class World
 		const block_x = ~~(pos.x + (World.size * Chunk.base)/2) % Chunk.base;
 		const block_z = ~~(pos.z + (World.size * Chunk.base)/2) % Chunk.base;
 
-		if (!World.structure[chunk_x][chunk_z].struct()[block_x][block_z][~~pos.y].attrs.empty)
+		const selected_block = World.structure[chunk_x][chunk_z].struct()[block_x][block_z][~~pos.y];
+
+		if (selected_block.attrs.breakable)
 		{
 			World.structure[chunk_x][chunk_z].delBlock(block_x, block_z, ~~pos.y);
 			World.renewStructure(chunk_x, chunk_z);

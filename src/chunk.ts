@@ -141,12 +141,9 @@ export class Chunk
 
 	public delBlock (x: number, z: number, y: number): void
 	{
-		if (this.structure[x][z][y].attrs.breakable)
-		{
-			if (this.structure[x][z][y+1].attrs.x_shaped)
-				this.delBlock(x, z, y+1);
+		if (this.structure[x][z][y+1].attrs.x_shaped)
+			this.delBlock(x, z, y+1);
 
-			this.structure[x][z][y] = Blocks.air;
-		}
+		this.structure[x][z][y] = Blocks.air;
 	}
 }

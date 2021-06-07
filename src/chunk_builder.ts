@@ -149,21 +149,21 @@ export default class ChunkBuilder
 
 	private generateXBlock (x: number, z: number, y: number): void
 	{
-		const shift_x1 = (Math.random() - 0.5) / 2.5;
-		const shift_z1 = (Math.random() - 0.5) / 2.5;
-		const shift_x2 = shift_x1 - (Math.random() - 0.5) / 6;
-		const shift_z2 = shift_z1 - (Math.random() - 0.5) / 6;
+		// const shift_x1 = (Math.random() - 0.5) / 2.5;
+		// const shift_z1 = (Math.random() - 0.5) / 2.5;
+		// const shift_x2 = shift_x1 - (Math.random() - 0.5) / 6;
+		// const shift_z2 = shift_z1 - (Math.random() - 0.5) / 6;
 
-		this.buff.push(Faces.x1.clone().translate(x + shift_x1, y, z + shift_z1));
+		this.buff.push(Faces.x1.clone().translate(x, y, z));
 		this.uv.push(this.struct[x][z][y].uv_x1);
 
-		this.buff.push(Faces.x1.clone().rotateY(Math.PI).translate(x + shift_x1, y, z + shift_z1));
+		this.buff.push(Faces.x1.clone().rotateY(Math.PI).translate(x, y, z));
 		this.uv.push(this.struct[x][z][y].uv_x2);
 
-		this.buff.push(Faces.x2.clone().translate(x + shift_x2, y, z + shift_z2));
+		this.buff.push(Faces.x2.clone().translate(x, y, z));
 		this.uv.push(this.struct[x][z][y].uv_x1);
 
-		this.buff.push(Faces.x2.clone().rotateY(Math.PI).translate(x + shift_x2, y, z + shift_z2));
+		this.buff.push(Faces.x2.clone().rotateY(Math.PI).translate(x, y, z));
 		this.uv.push(this.struct[x][z][y].uv_x2);
 	}
 

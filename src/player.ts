@@ -41,10 +41,10 @@ export default class Player
 	public static position  = Player.camera.position;
 	public static direction = new THREE.Vector3(0, 0, 0);
 
-	private static generateModel (): void
+	private static generateModel (block: Block): void
 	{
 		Player.cube_geometry.setAttribute('uv', new THREE.BufferAttribute(
-			new Float32Array(Player.generateCubeTextures(Blocks.grass)), 2
+			new Float32Array(Player.generateCubeTextures(block)), 2
 		));
 
 		Player.cube_mesh = new THREE.Mesh(
@@ -289,7 +289,7 @@ export default class Player
 		Player.position.set(0, 23, 0);
 		Player.updateWorldPosition();
 		Player.scene = sce;
-		Player.generateModel();
+		Player.generateModel(Blocks.dirt);
 	}
 
 	public static updatePosition (): void
@@ -312,5 +312,10 @@ export default class Player
 			Player.camera.rotation.y,
 			Player.camera.rotation.z
 		);
+	}
+
+	public static updateCube (block: Block): void
+	{
+		Player.generateModel(block);
 	}
 }
