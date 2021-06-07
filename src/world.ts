@@ -83,11 +83,11 @@ export default class World
 		return World.worldMesh;
 	}
 
-	public putBlock(chunkX: number, chunkZ: number, position: THREE.Vector3, block: Block): void
+	public putBlock(chunk: THREE.Vector3, position: THREE.Vector3, block: Block): void
 	{
+		const chunkX = ~~((chunk.x + (Chunk.base*World.size) /2) / Chunk.base);
+		const chunkZ = ~~((chunk.z + (Chunk.base*World.size) /2) / Chunk.base);
 
-		chunkX = ~~((chunkX + (Chunk.base*World.size) /2) / Chunk.base);
-		chunkZ = ~~((chunkZ + (Chunk.base*World.size) /2) / Chunk.base);
 
 		World.scene.remove(World.builders[chunkX][chunkZ].chunkMesh());
 

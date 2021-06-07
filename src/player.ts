@@ -1,11 +1,13 @@
 import * as THREE from 'three';
 
 import { AdyChunks, Chunk } from './chunk';
+import { Block, Blocks } from './blocks';
+import Textures from './textures';
 import World from './world';
 
 const y_axis = new THREE.Vector3(0, 1, 0);
 
-export default class Player extends THREE.Object3D
+export default class Player
 {
 	private static speed       = 0.075;
 	private static fall_speed  = 0;
@@ -24,6 +26,11 @@ export default class Player extends THREE.Object3D
 	private static ady_chunks: AdyChunks;
 	private static chunk: Chunk;
 
+	private static cube_geometry = new THREE.BoxBufferGeometry(0.4, 0.4, 0.4);
+	private static cube_mesh     = new THREE.Mesh();
+	private static player_mod    = new THREE.Mesh();
+	private static scene: THREE.Scene;
+
 	public static camera = new THREE.PerspectiveCamera(
 		80,
 		window.innerWidth / window.innerHeight,
@@ -33,9 +40,34 @@ export default class Player extends THREE.Object3D
 	public static position  = Player.camera.position;
 	public static direction = new THREE.Vector3(0, 0, 0);
 
-	constructor ()
+	private static generateModel (): void
 	{
-		super();
+		Player.cube_geometry.setAttribute('uv', new THREE.BufferAttribute(
+			new Float32Array(Player.generateCubeTextures(Blocks.grass)), 2
+		));
+
+		Player.cube_mesh = new THREE.Mesh(
+			Player.cube_geometry,
+			Textures.material
+		);
+		Player.cube_mesh.position.set(0.4, -0.4, -0.4);
+
+		Player.player_mod.add(Player.cube_mesh);
+		Player.scene.add(Player.player_mod);
+	}
+
+	private static generateCubeTextures (block: Block): number[]
+	{
+		const uvs = new Array<Array<number>>(24);
+
+		uvs.push(block.uv_side);
+		uvs.push(block.uv_side);
+		uvs.push(block.uv_top);
+		uvs.push(block.uv_bottom);
+		uvs.push(block.uv_side);
+		uvs.push(block.uv_side);
+
+		return uvs.flat();
 	}
 
 	private static willCollideAt (x: number, z: number, y: number): boolean
@@ -215,10 +247,12 @@ export default class Player extends THREE.Object3D
 		}
 	}
 
-	public static spawn (): void
+	public static spawn (sce: THREE.Scene): void
 	{
 		Player.position.set(0, 23, 0);
 		Player.updateWorldPosition();
+		Player.scene = sce;
+		Player.generateModel();
 	}
 
 	public static updatePosition (): void
@@ -229,5 +263,17 @@ export default class Player extends THREE.Object3D
 
 		Player.updatePositionAgainstCollisions();
 		Player.updateWorldPosition();
+
+		Player.player_mod.position.set(
+			Player.camera.position.x,
+			Player.camera.position.y,
+			Player.camera.position.z
+		);
+
+		Player.player_mod.rotation.set(
+			Player.camera.rotation.x,
+			Player.camera.rotation.y,
+			Player.camera.rotation.z
+		);
 	}
 }
