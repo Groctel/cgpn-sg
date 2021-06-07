@@ -25,10 +25,6 @@ export default class GameScene extends THREE.Scene
 
 		this.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0,1,0), 0, 16);
 
-		this.world = new World(this);
-		this.add(Player.camera);
-		Player.spawn();
-
 		this.worldMeshes = new Array<THREE.Mesh>();
 		this.recalculate();
 
@@ -74,21 +70,24 @@ export default class GameScene extends THREE.Scene
 		const intersection = this.raycaster.intersectObjects(this.worldMeshes);
 
 		if(intersection.length >0){
-			const x = intersection[0].point.x;
-			const y = Math.ceil(intersection[0].point.y);
-			const z = intersection[0].point.z;
+			const cube_position = new THREE.Vector3();
+			const orientation = intersection[0].face.normal;
+
+			if(block == Blocks.air){
+				cube_position.copy(intersection[0].point).sub(new THREE.Vector3(orientation.x, 0, orientation.z));
+			}
+			else{
+				cube_position.copy(intersection[0].point).add(orientation);
+			}
 
 			const chunkX = intersection[0].object.position.x;
 			const chunkZ = intersection[0].object.position.z;
 
+			console.log(cube_position);
 
-			this.world.putBlock(chunkX, chunkZ, x, y, z, block);
+			this.world.putBlock(chunkX, chunkZ, cube_position, block);
+			this.recalculate();
 		}
-	}
-
-	recalculate (): void
-	{
-		this.worldMeshes = this.world.returnMeshesRelativePosition(Player.position.x, Player.position.z);
 	}
 
 	constructRenderer (canvas: string): void
@@ -97,6 +96,11 @@ export default class GameScene extends THREE.Scene
 		GameScene.renderer.setClearColor(new THREE.Color(0xEEEEEE), 1.0);
 		GameScene.renderer.setSize(window.innerWidth, window.innerHeight);
 		$(canvas).append(GameScene.renderer.domElement);
+	}
+
+	recalculate (): void
+	{
+		this.worldMeshes = this.world.returnMeshesRelativePosition(Player.position.x, Player.position.z);
 	}
 
 	update (): void

@@ -137,14 +137,8 @@ export class Chunk
 	public positionBlock(x: number, z: number, y: number, type: Block): void
 	{
 
-		if(type == Blocks.air){
-			y -= 1;
-			this.structure[x][z][y].attrs.transparent = true;
-			this.structure[x][z][y].attrs.empty = true;
-			this.structure[x][z][y].attrs.solid = false;
-		}
-
 		this.structure[x][z][y] = type;
+		console.log(x, y, z);
 
 	}
 }
