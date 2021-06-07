@@ -90,44 +90,44 @@ export default class Player
 			if (z < 0)
 				collide = Player.ady_chunks.nxnz === null
 					? true
-					: Player.ady_chunks.nxnz.struct()[Chunk.base-1][z][y].attrs.solid;
+					: Player.ady_chunks.nxnz.struct()[Chunk.base+x][Chunk.base+z][y].attrs.solid;
 			else
 				collide = Player.ady_chunks.nx === null
 					? true
-					: Player.ady_chunks.nx.struct()[Chunk.base-1][z][y].attrs.solid;
+					: Player.ady_chunks.nx.struct()[Chunk.base+x][z][y].attrs.solid;
 		}
 		else if (x >= Chunk.base)
 		{
 			if (z >= Chunk.base)
 				collide = Player.ady_chunks.pxpz === null
 					? true
-					: Player.ady_chunks.pxpz.struct()[0][z][y].attrs.solid;
+					: Player.ady_chunks.pxpz.struct()[x-Chunk.base][z-Chunk.base][y].attrs.solid;
 			else
 				collide = Player.ady_chunks.px === null
 					? true
-					: Player.ady_chunks.px.struct()[0][z][y].attrs.solid;
+					: Player.ady_chunks.px.struct()[x-Chunk.base][z][y].attrs.solid;
 		}
 		else if (z < 0)
 		{
 			if (x >= Chunk.base)
 				collide = Player.ady_chunks.pxnz === null
 					? true
-					: Player.ady_chunks.pxnz.struct()[x][Chunk.base-1][y].attrs.solid;
+					: Player.ady_chunks.pxnz.struct()[x-Chunk.base][Chunk.base-z][y].attrs.solid;
 			else
 				collide = Player.ady_chunks.nz === null
 					? true
-					: Player.ady_chunks.nz.struct()[x][Chunk.base-1][y].attrs.solid;
+					: Player.ady_chunks.nz.struct()[x][Chunk.base-z][y].attrs.solid;
 		}
 		else if (z >= Chunk.base)
 		{
 			if (x < 0)
 				collide = Player.ady_chunks.nxpz === null
 					? true
-					: Player.ady_chunks.nxpz.struct()[x][0][y].attrs.solid;
+					: Player.ady_chunks.nxpz.struct()[Chunk.base-x][z-Chunk.base][y].attrs.solid;
 			else
 				collide = Player.ady_chunks.pz === null
 					? true
-					: Player.ady_chunks.pz.struct()[x][0][y].attrs.solid;
+					: Player.ady_chunks.pz.struct()[x][z-Chunk.base][y].attrs.solid;
 		}
 
 		return collide;
