@@ -14,6 +14,7 @@ export default class GameScene extends THREE.Scene
 	private static raycaster = new THREE.Raycaster(
 		new THREE.Vector3(), GameScene.direction, 0, 10
 	);
+	private static cast_direction = new THREE.Vector3();
 
 	constructor (canvas: string)
 	{
@@ -21,8 +22,6 @@ export default class GameScene extends THREE.Scene
 
 		this.constructRenderer(canvas);
 		this.constructLights();
-
-		GameScene.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0,1,0), 0, 10);
 
 		GameScene.selectedBlock = Blocks.bedrock;
 
@@ -44,8 +43,8 @@ export default class GameScene extends THREE.Scene
 
 	public static addBlock (block: Block): void
 	{
-		Player.camera.getWorldDirection(GameScene.direction);
-		GameScene.raycaster.set(Player.position, GameScene.direction);
+		Player.camera.getWorldDirection(GameScene.cast_direction);
+		GameScene.raycaster.set(Player.position, GameScene.cast_direction);
 
 		const intersection = GameScene.raycaster.intersectObjects(Player.cast_meshes);
 
@@ -54,15 +53,8 @@ export default class GameScene extends THREE.Scene
 			const cube_position = intersection[0].point;
 			const orientation   = intersection[0].face.normal;
 
-			if (block === Blocks.air)
-			{
-				orientation.y = 0;
-				cube_position.sub(orientation);
-			}
-			else
-			{
+			if (block !== Blocks.air)
 				cube_position.add(orientation);
-			}
 
 			World.addBlock(cube_position, block);
 			Player.updateCastMeshes();
