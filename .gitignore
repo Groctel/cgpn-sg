@@ -43,3 +43,9 @@ package-lock.json
 
 # awesome-typescript
 .awcache
+
+# tex
+*.aux
+*.out
+*.pdf
+*.toc

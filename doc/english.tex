@@ -1,0 +1,78 @@
+\selectlanguage{english}
+\chapter*{English}
+
+\section*{Installation}
+
+Download the game from the official repository's\footnote{%
+	\url{https://github.com/Groctel/cgpn-sg}
+}
+latest release or clone it to play the latest non-released version:
+
+\begin{lstlisting}[language=sh]
+git clone https://github.com/Groctel/cgpn-sg
+\end{lstlisting}
+
+You need to install the game's dependencies with either \texttt{npm} and \texttt{yarn} before running CGPN\@.
+Any of these two commands will install the dependencies locally in a directory called \texttt{node\_modules}.
+Run them from the game's top directory (where the \texttt{README.md} file is):
+
+\begin{lstlisting}[language=sh]
+npm install
+yarn install
+\end{lstlisting}
+
+Run the game with the same command you did in the previous step substituting \texttt{install} with \texttt{start}:
+
+\begin{lstlisting}[language=sh]
+npm start
+yarn start
+\end{lstlisting}
+
+This should automatically open your browser and start running the game.
+If it doesn't, open it and go to \texttt{localhost:8080} to start playing.
+Refresh the tab to restart the game.
+To stop the game, press \texttt{\^{}C} in the terminal where the game server is running.
+
+\section*{Controls}
+
+This game is played using the classic \texttt{WASD} and mouse first person controls.
+Use your mouse to rotate the camera from the player's point of view.
+Use the following keys to move the player
+
+\begin{itemize}
+	\item
+		\texttt{A}\textbf{:}
+		Move the player to the left.
+	\item
+		\texttt{D}\textbf{:}
+		Move the player to the right.
+	\item
+		\texttt{S}\textbf{:}
+		Move the player backwards.
+	\item
+		\texttt{W}\textbf{:}
+		Move the player forward.
+	\item
+		\texttt{SPACE}\textbf{:}
+		Jump.
+\end{itemize}
+
+If it's the first time you're playing with this control scheme, place your left hand's ring finger over the \texttt{A} key, your ring finger over the \texttt{W} key and your index finger over the \texttt{D} key.
+This will let you press the \texttt{S} key moving the ring finger towards you from the \texttt{W} key and easily reach the \texttt{SPACE} key with your thumb.
+
+Use your mouse to alter the world to your liking:
+
+\begin{itemize}
+	\item
+		\texttt{LEFT CLICK}\textbf{:}
+		Remove a cube.
+	\item
+		\texttt{RIGHT CLICK}\textbf{:}
+		Place a cube.
+	\item
+		\texttt{WHEEL SCROLL}\textbf{:}
+		Cycle through held cubes.
+\end{itemize}
+
+Cubes will be destroyed and placed where the player is looking, guided by the crosshair at the center of the screen.
+If you're too far from a cube you'll have to get closer to interact with it!

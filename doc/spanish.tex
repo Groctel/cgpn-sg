@@ -1,0 +1,78 @@
+\selectlanguage{spanish}
+\chapter*{Español}
+
+\section*{Instalación}
+
+Descarga el juego de la última publicación del repositorio oficial\footnote{%
+	\url{https://github.com/Groctel/cgpn-sg}
+}
+o clónalo para jugar a la última versión:
+
+\begin{lstlisting}[language=sh]
+git clone https://github.com/Groctel/cgpn-sg
+\end{lstlisting}
+
+Necesitas instalar las dependencias del juego con \texttt{npm} o \texttt{yarn} antes de ejecutar CGPN\@.
+Cualquiera de estas órdenes instalarán las dependencias localmente en un directorio llamado \texttt{node\_modules}.
+Ejecútalas desde el directorio superior del juego (donde está el fichero \texttt{README.md}):
+
+\begin{lstlisting}[language=sh]
+npm install
+yarn install
+\end{lstlisting}
+
+Ejecuta el juego con la misma orden que usaste en el paso anterior sustituyendo \texttt{install} por \texttt{start}:
+
+\begin{lstlisting}[language=sh]
+npm start
+yarn start
+\end{lstlisting}
+
+Esto debería abrir automáticamente tu navegador y empezar a ejecutar el juego.
+Si no lo hace, ábrelo y ve a \texttt{localhost:8080} para empezar a jugar.
+Recarga la pestaña para reiniciar el juego.
+Para parar el juego, pulsa \texttt{\^{}C} en la terminal donde se está ejecutando el servidor del juego.
+
+\section*{Controles}
+
+Este juego usa los controles clásicos de \texttt{WASD} y ratón en primera persona.
+Usa tu ratón para rotar la cámara desde el punto de vista del jugador.
+Usa las siguientes teclas para mover al jugador:
+
+\begin{itemize}
+	\item
+		\texttt{A}\textbf{:}
+		Mover el jugador a la izquierda.
+	\item
+		\texttt{D}\textbf{:}
+		Mover el jugador a la derecha.
+	\item
+		\texttt{S}\textbf{:}
+		Mover el jugador hacia delante.
+	\item
+		\texttt{W}\textbf{:}
+		Mover el jugador hacia atrás.
+	\item
+		\texttt{ESPACIO}\textbf{:}
+		Saltar.
+\end{itemize}
+
+Si es la primera vez que juegas con este esquema de controles coloca el anular de tu mano izquierda sobre la \texttt{A}, tu dedo corazón sobre la \texttt{W} y tu índice sobre la \texttt{D}.
+Esto te permitirá pulsar la \texttt{S} moviendo el dedo corazón hacia ti desde la \texttt{W} y alcanzar fácilmente el \texttt{ESPACIO} con tu pulgar.
+
+Usa tu razón para alterar el mundo a tu gusto:
+
+\begin{itemize}
+	\item
+		\texttt{CLICK IZQUIERDO}\textbf{:}
+		Eliminar un cubo.
+	\item
+		\texttt{CLICK DERECHO}\textbf{:}
+		Colocar un cubo.
+	\item
+		\texttt{RUEDA DEL RATÓN}\textbf{:}
+		Cambiar el cubo sostenido por el jugador.
+\end{itemize}
+
+Los cubos serán destruidos y colocados donde está mirando el jugador, guiado por la cruceta en el centro de la pantalla.
+¡Si estás muy lejos de un cubo tendrás que acercarte para ineractuar con él!
