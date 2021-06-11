@@ -7,13 +7,13 @@ import World from './world';
 
 export default class GameScene extends THREE.Scene
 {
-	public static renderer = new THREE.WebGLRenderer();
-
+	private static cast_direction = new THREE.Vector3();
 	private static direction = new THREE.Vector3();
 	private static raycaster = new THREE.Raycaster(
 		new THREE.Vector3(), GameScene.direction, 0, 10
 	);
-	private static cast_direction = new THREE.Vector3();
+
+	public static renderer = new THREE.WebGLRenderer();
 
 	constructor (canvas: string)
 	{
@@ -25,17 +25,6 @@ export default class GameScene extends THREE.Scene
 		new World(this);
 		Player.spawn(this);
 		this.add(Player.camera);
-	}
-
-	constructLights (): void
-	{
-		const light     = new THREE.AmbientLight(0xccddee, 1);
-		const spotlight = new THREE.SpotLight(0xffffff, 1);
-
-		spotlight.position.set(0, 100, 0);
-
-		this.add(light);
-		this.add(spotlight);
 	}
 
 	private static intersectRaycaster (): THREE.Intersection[]
@@ -74,7 +63,18 @@ export default class GameScene extends THREE.Scene
 		}
 	}
 
-	constructRenderer (canvas: string): void
+	private constructLights (): void
+	{
+		const light     = new THREE.AmbientLight(0xccddee, 1);
+		const spotlight = new THREE.SpotLight(0xffffff, 1);
+
+		spotlight.position.set(0, 100, 0);
+
+		this.add(light);
+		this.add(spotlight);
+	}
+
+	private constructRenderer (canvas: string): void
 	{
 		GameScene.renderer = new THREE.WebGLRenderer();
 		GameScene.renderer.setClearColor(new THREE.Color(0xEEEEEE), 1.0);
@@ -82,7 +82,7 @@ export default class GameScene extends THREE.Scene
 		$(canvas).append(GameScene.renderer.domElement);
 	}
 
-	update (): void
+	public update (): void
 	{
 		Player.updatePosition();
 		GameScene.renderer.render(this, Player.camera);

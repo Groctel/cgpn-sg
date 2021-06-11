@@ -16,11 +16,11 @@ export default class Player
 	private static jump_stage  = 0;
 
 	private static look       = new THREE.Vector3(0, 0, 0);
-	private static next_cube = new THREE.Vector3(0, 0, 0);
+	private static next_cube  = new THREE.Vector3(0, 0, 0);
 	private static next_step  = new THREE.Vector3(0, 0, 0);
 	private static step_fwd   = new THREE.Vector3(0, 0, 0);
 	private static step_side  = new THREE.Vector3(0, 0, 0);
-	private static curr_cube = new THREE.Vector3(0, 0, 0);
+	private static curr_cube  = new THREE.Vector3(0, 0, 0);
 	private static curr_chunk = new THREE.Vector3(-1, 0, -1);
 
 	private static ady_chunks: AdyChunks;
@@ -41,6 +41,20 @@ export default class Player
 	public static position  = Player.camera.position;
 	public static direction = new THREE.Vector3(0, 0, 0);
 
+	private static generateCubeTextures (cube: Cube): number[]
+	{
+		const uvs = new Array<Array<number>>(24);
+
+		uvs.push(cube.uv_side);
+		uvs.push(cube.uv_side);
+		uvs.push(cube.uv_top);
+		uvs.push(cube.uv_bottom);
+		uvs.push(cube.uv_side);
+		uvs.push(cube.uv_side);
+
+		return uvs.flat();
+	}
+
 	private static generateModel (cube: Cube): void
 	{
 		Player.cube_geometry.setAttribute('uv', new THREE.BufferAttribute(
@@ -55,20 +69,6 @@ export default class Player
 
 		Player.player_mod.add(Player.cube_mesh);
 		Player.scene.add(Player.player_mod);
-	}
-
-	private static generateCubeTextures (cube: Cube): number[]
-	{
-		const uvs = new Array<Array<number>>(24);
-
-		uvs.push(cube.uv_side);
-		uvs.push(cube.uv_side);
-		uvs.push(cube.uv_top);
-		uvs.push(cube.uv_bottom);
-		uvs.push(cube.uv_side);
-		uvs.push(cube.uv_side);
-
-		return uvs.flat();
 	}
 
 	private static willCollideAt (x: number, z: number, y: number): boolean
@@ -261,8 +261,6 @@ export default class Player
 			Player.cast_meshes.push(mesh_nxpz);
 		if (mesh_nxnz !== null)
 			Player.cast_meshes.push(mesh_nxnz);
-
-		// console.log(Player.cast_meshes);
 	}
 
 	public static moveForward     (): void { Player.front_speed =  Player.speed; }
@@ -284,11 +282,11 @@ export default class Player
 		}
 	}
 
-	public static spawn (sce: THREE.Scene): void
+	public static spawn (scene: THREE.Scene): void
 	{
 		Player.position.set(0, 23, 0);
 		Player.updateWorldPosition();
-		Player.scene = sce;
+		Player.scene = scene;
 		Player.generateModel(Cubes.brick);
 	}
 
